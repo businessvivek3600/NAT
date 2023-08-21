@@ -1,6 +1,6 @@
 # Welcome to Chandan Kumar Singh's GitHub Profile! 🚀
 
-![Profile Banner](https://pps.whatsapp.net/v/t61.24694-24/315791635_1255678895290666_1072327948892238652_n.jpg?stp=dst-jpg_s96x96&ccb=11-4&oh=01_AdStmdWj75gLXr3gASsIy6pwr4GEK9p1B3WHZw0OExp1lQ&oe=64CCE6F1)
+![Profile Banner](https://avatars.githubusercontent.com/u/91355859?v=4)
 
 ## About Me
 
@@ -27,14 +27,8 @@ Here are some of my recent projects that showcase my skills and passion:
 
 I'm always open to collaborating on exciting projects or discussing the latest trends in the tech world. Feel free to reach out to me on the following platforms:
 
-- GitHub: [github.com/chandankumar1307](https://github.com/chandankumar1307)
-- LinkedIn: [linkedin.com/in/chandankumar1307](https://www.linkedin.com/in/chandankumar1307)
+- GitHub: [github.com/ChandanKumar-Singh](https://github.com/ChandanKumar-Singh)
+- LinkedIn: [linkedin.com/in/ChandanKumar-Singh](https://www.linkedin.com/in/ChandanKumar-Singh)
 - Twitter: [@chandan_k1307](https://twitter.com/chandan_k1307)
 
 Let's create something amazing together! 😄
-
----
-
-*Note: Replace the placeholder image link with your actual profile banner URL, and make sure to include your real social media handles.*# Bookie
-# NAT
-# NAT
