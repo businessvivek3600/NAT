@@ -14,7 +14,7 @@ const Color mainColor700 = Color(0xcc0a0d15);
 const Color mainColor800 = Color(0xe60a0d15);
 const Color mainColor900 = Color(0xf20a0d15);
 
-const Color appLogoColor = Color(0xff02457C);
+const Color appLogoColor = Color(0xffBD8F09);
 const Color appLogoColor2 = Color(0xff6DBA00);
 const Color lightAppLogoColor = Color(0xff6DBA00);
 

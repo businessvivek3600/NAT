@@ -41,7 +41,7 @@ class _DashSettingPageState extends State<DashSettingPage> {
                   body: ListView(
                     padding: EdgeInsets.symmetric(horizontal: paddingDefault),
                     children: [
-                      buildUserCard(context),
+                      buildUserCard(context, authProvider),
                       height10(spaceDefault),
                       buildCategoryCard(context, 'Personal Information', [
                         buildSettingTile(context, Icons.person, 'My Profile',
@@ -248,7 +248,7 @@ class _DashSettingPageState extends State<DashSettingPage> {
     );
   }
 
-  Card buildUserCard(BuildContext context) {
+  Card buildUserCard(BuildContext context, AuthProvider authProvider) {
     return Card(
       elevation: 0.5,
 
@@ -269,7 +269,7 @@ class _DashSettingPageState extends State<DashSettingPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                bodyLargeText('Chandan Kumar Singh', context),
+                bodyLargeText((authProvider.user?.status??''), context),
                 bodyMedText('+91 9135324545', context),
               ],
             )),

@@ -4,9 +4,9 @@ import 'package:animated_toast_list/animated_toast_list.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_global_tools/screens/BottomNav/dash_setting_page.dart';
 import '../../repo_injection.dart';
 import '../components/shop_card_widget.dart';
 import '/constants/asset_constants.dart';
@@ -15,8 +15,6 @@ import '/route_management/route_name.dart';
 import '/screens/components/service_card_widget.dart';
 import '/utils/color.dart';
 import '/utils/picture_utils.dart';
-import 'package:random_avatar/random_avatar.dart';
-import '/functions/functions.dart';
 import '/providers/auth_provider.dart';
 import '/providers/dashboard_provider.dart';
 import '/providers/setting_provider.dart';
@@ -25,7 +23,7 @@ import '/screens/chat/ChatPageExample.dart';
 import '/screens/send_mail_page.dart';
 import '/utils/default_logger.dart';
 import '/utils/my_toasts.dart';
-
+import 'dart:ui' as ui;
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import '/utils/sized_utils.dart';
@@ -80,16 +78,53 @@ class _DashHomePageState extends State<DashHomePage> {
       builder: (context, authProvider, child) {
         return Consumer<SettingProvider>(
           builder: (context, settingProvider, child) {
-            return Scaffold(
-              body: CustomScrollView(
-                controller:
-                    Provider.of<DashboardProvider>(context, listen: true)
-                        .scrollController,
-                slivers: [
-                  buildAppBar(info, settingProvider, context),
-                  SliverToBoxAdapter(child: buildBody(authProvider)),
-                ],
-              ),
+            return Stack(
+              children: [
+                // Background gradient with two colors
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        appLogoColor.withOpacity(0.1),
+                        getTheme.colorScheme.primary.withOpacity(0.1),
+                        // Color(0x66d0d4fc),
+                        // Color(0x66d0d4fc),
+                        // Color(0x7bfbe6cc),
+
+                        // Color(0xFFFBE6CB),
+                        // Color(0xFFD0D4FA),
+                        // Color(0xFFF9D0DC),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+                // Apply blur effect to the gradient
+                /*    BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
+                ),*/
+                // ui
+                Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: Stack(
+                    children: [
+                      CustomScrollView(
+                        controller: Provider.of<DashboardProvider>(context,
+                                listen: true)
+                            .scrollController,
+                        slivers: [
+                          buildAppBar(info, settingProvider, context),
+                          SliverToBoxAdapter(child: buildBody(authProvider)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             );
           },
         );
@@ -98,19 +133,6 @@ class _DashHomePageState extends State<DashHomePage> {
   }
 
   Consumer<ConnectivityProvider> buildBody(AuthProvider authProvider) {
-    List<String> options = [
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-      'sub-cat',
-    ];
     return Consumer<ConnectivityProvider>(
       builder: (context, provider, _) {
         return Padding(
@@ -118,13 +140,12 @@ class _DashHomePageState extends State<DashHomePage> {
               horizontal: 10, vertical: 20),
           child: Column(
             children: [
-              const _SliderWidget(),
-              heightDefault(),
-              buildCategories(context),
-              buildBestShops(context, options),
-              buildBestServices(context, options),
+              buildTopCollections(context),
+              height30(),
+              buildHotTradings(context),
+              height30(),
+              buildJoinUs(context),
               height100(),
-              // buildDemoColumn(provider, context, authProvider),
             ],
           ),
         );
@@ -244,85 +265,337 @@ class _DashHomePageState extends State<DashHomePage> {
     );
   }
 
-  Column buildCategories(BuildContext context) {
+  Column buildJoinUs(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          children: [
+            Container(
+              height: getHeight > mobHeight ? 500 : 400,
+              width: getWidth > mobWidth ? 400 : double.maxFinite,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                      color: getTheme.colorScheme.primary.withOpacity(0.5),
+                      width: 5)),
+              padding: EdgeInsets.only(top: spaceDefault),
+            ),
+            Positioned(
+              top: spaceDefault,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: buildCachedNetworkImage(
+                  'https://www.nathorizon.com/public/user/images/thumb-banner.png',
+                  fit: BoxFit.contain),
+            ),
+          ],
+        ),
+        height20(),
+        Row(
+          children: [
+            assetImages(PNGAssets.appLogo, width: 50),
+            width10(),
+            titleLargeText('Join Us', context,
+                fontSize: getWidth > mobWidth ? 32 : 25),
+          ],
+        ),
+        height10(),
+        titleLargeText('Create And Sell NFT With Cesea', context,
+            fontSize: getWidth > mobWidth ? 32 : 25),
+        height10(),
+        bodyLargeText(
+            'Create your own NFT and sell it on Cesea. You can also buy NFTs from other creators.',
+            context),
+        height10(),
+        Wrap(
+          runSpacing: 10,
+          spacing: 10,
+          children: [
+            FilledButton(
+              onPressed: () {},
+              child: const Text('Create Item'),
+            ),
+            OutlinedButton(
+              onPressed: () {},
+              child: const Text('Sell Item'),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Column buildHotTradings(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            bodyLargeText('Categories', context),
-            TextButton(
-                onPressed: () =>
-                    context.pushNamed(RouteName.categories, queryParameters: {
-                      'animation': RouteTransition.fromBottom.name,
-                    }),
-                child: capText('See All', context,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleLargeText('Hot Trading', context),
+                  bodyMedText(
+                      'The most creative creator - Based on the last 30 days',
+                      context),
+                ],
+              ),
+            ),
+            PopupMenuButton(
+                onSelected: (val) {
+                  // context.pushNamed(RouteName.categories, queryParameters: {
+                  //   'animation': RouteTransition.fromBottom.name,
+                  // });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                color: getTheme.colorScheme.primary,
+                position: PopupMenuPosition.under,
+                offset: const Offset(0, 10),
+                itemBuilder: (BuildContext context) {
+                  return ['Recently Created', 'New Created']
+                      .map((e) => PopupMenuItem(
+                          value: e,
+                          child: bodyLargeText(e, context,
+                              color: darkMode ? Colors.black : Colors.white)))
+                      .toList();
+                },
+                child: Icon(Icons.more_vert_rounded,
                     color: getTheme.colorScheme.primary))
           ],
         ),
-        Wrap(
-          children: [
-            ...List.generate(
-                5,
-                (index) => LayoutBuilder(builder: (context, bound) {
-                      return GestureDetector(
-                        onTap: () =>
-                            context.pushNamed(RouteName.categoryDetail),
-                        child: Column(
-                          children: [
-                            Container(
-                              constraints: BoxConstraints(
-                                  maxWidth:
-                                      (getWidth - 40 - paddingDefault * 2) / 3,
-                                  minWidth:
-                                      (getWidth - 40 - paddingDefault * 2) / 3),
-                              margin: EdgeInsets.only(
-                                  right: index % 2 == 0 && index != 0 ? 0 : 10,
-                                  bottom: 10),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  // borderRadius: BorderRadius.circular(10),
-                                  shape: BoxShape.circle,
-                                  color: generateRandomLightColor()
-                                      .withOpacity(0.2)),
-                              child: assetImages(PNGAssets.appLogo),
+        height10(),
+        SizedBox(
+          height: 30,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FilledButton(
+                onPressed: () {},
+                child: const Text('New NFT'),
+              ),
+              TextButton(
+                  onPressed: () =>
+                      context.pushNamed(RouteName.categories, queryParameters: {
+                        'animation': RouteTransition.fromBottom.name,
+                      }),
+                  child: capText('View All', context,
+                      color: getTheme.colorScheme.primary))
+            ],
+          ),
+        ),
+        height10(),
+        GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            itemCount: 10,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 0.7,
+            ),
+            itemBuilder: (context, index) {
+              return LayoutBuilder(builder: (context, bound) {
+                return Container(
+                  padding: EdgeInsets.all(paddingDefault),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: bound.maxHeight * 0.7,
+                        width: bound.maxWidth,
+                        child: buildCachedNetworkImage(
+                            'https://www.nathorizon.com/public/images/userNft/gemichan_logo_4x.jpg',
+                            borderRadius: 10),
+                      ),
+                      height10(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const CircleAvatar(
+                                  radius: 8,
+                                  backgroundImage: NetworkImage(
+                                      'https://www.nathorizon.com/public/images/category/istockphoto-1022344990-612x612.jpg'),
+                                ),
+                                width5(),
+                                Expanded(
+                                    child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    capText('Owner', context, fontSize: 10),
+                                    capText('NAPTdfdh RO', context,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        maxLines: 1),
+                                  ],
+                                ))
+                              ],
                             ),
-                            capText('Category', context),
-                            height5(),
-                          ],
-                        ),
-                      );
-                    }))
+                          ),
+                          Expanded(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              capText('Current Price', context,
+                                  fontSize: 10, maxLines: 1),
+                              capText('1534 TBCC', context,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  maxLines: 1),
+                            ],
+                          ))
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              });
+            })
+      ],
+    );
+  }
+
+  Column buildTopCollections(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleLargeText('Top Collection', context),
+                  bodyMedText(
+                      'The most well-known Collection - Based on the last 30 days',
+                      context),
+                ],
+              ),
+            ),
+            PopupMenuButton(
+                onSelected: (val) {
+                  // context.pushNamed(RouteName.categories, queryParameters: {
+                  //   'animation': RouteTransition.fromBottom.name,
+                  // });
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                color: getTheme.colorScheme.primary,
+                position: PopupMenuPosition.under,
+                offset: const Offset(0, 10),
+                itemBuilder: (BuildContext context) {
+                  return ['New Listed', 'New Created']
+                      .map((e) => PopupMenuItem(
+                          value: e,
+                          child: bodyLargeText(e, context,
+                              color: darkMode ? Colors.black : Colors.white)))
+                      .toList();
+                },
+                child: Icon(Icons.more_vert_rounded,
+                    color: getTheme.colorScheme.primary))
           ],
-        )
-        // SizedBox(
-        //   height: 300,
-        //   child: GridView.builder(
-        //       shrinkWrap: true,
-        //       gridDelegate:
-        //           const SliverGridDelegateWithFixedCrossAxisCount(
-        //         crossAxisCount: 3,
-        //         crossAxisSpacing: 10,
-        //         mainAxisSpacing: 10,
-        //       ),
-        //       itemBuilder: (context, index) {
-        //         return LayoutBuilder(builder: (context, bound) {
-        //           return Container(
-        //             decoration: BoxDecoration(
-        //                 borderRadius: BorderRadius.circular(10),
-        //                 color: getTheme.colorScheme.primary
-        //                     .withOpacity(0.03)),
-        //             child: Column(
-        //               children: [
-        //                 assetImages(PNGAssets.appLogo),
-        //                 capText('Category', context)
-        //               ],
-        //             ),
-        //           );
-        //         });
-        //       }),
-        // )
+        ),
+        height10(),
+        SizedBox(
+          height: 30,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FilledButton(
+                onPressed: () {},
+                child: const Text('New'),
+              ),
+              TextButton(
+                  onPressed: () =>
+                      context.pushNamed(RouteName.categories, queryParameters: {
+                        'animation': RouteTransition.fromBottom.name,
+                      }),
+                  child: capText('View All', context,
+                      color: getTheme.colorScheme.primary))
+            ],
+          ),
+        ),
+        height10(),
+        ...List.generate(3, (index) {
+          return Container(
+            padding: EdgeInsets.all(paddingDefault),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      backgroundImage: NetworkImage(
+                          'https://www.nathorizon.com/public/images/category/istockphoto-1022344990-612x612.jpg'),
+                    ),
+                    width10(),
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        bodyLargeText('New NFT', context),
+                        capText('created by NAPTRO', context),
+                      ],
+                    ))
+                  ],
+                ),
+                height10(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                        child: Container(
+                      height: getHeight > mobHeight ? 200 : 150,
+                      // width: getWidth > mobWidth ? 200 : getWidth * 0.6,
+                      child: buildCachedNetworkImage(
+                          'https://www.nathorizon.com/public/images/userNft/gemichan_logo_4x.jpg',
+                          borderRadius: 10),
+                    )),
+                    width10(),
+                    Expanded(child: LayoutBuilder(builder: (context, bound) {
+                      return Column(
+                        children: [
+                          Container(
+                            height: getHeight > mobHeight ? 95 : 70,
+                            width: getWidth > mobWidth ? 200 : getWidth * 0.6,
+                            child: buildCachedNetworkImage(
+                                'https://www.nathorizon.com/public/images/userNft/Screenshot%202023-08-10%20122239.png',
+                                borderRadius: 10),
+                          ),
+                          height10(),
+                          Container(
+                            height: getHeight > mobHeight ? 95 : 70,
+                            width: getWidth > mobWidth ? 200 : getWidth * 0.6,
+                            child: buildCachedNetworkImage(
+                                'https://www.nathorizon.com/public/images/userNft/boredape_nft-1024x577.jpg',
+                                borderRadius: 10),
+                          ),
+                        ],
+                      );
+                    })),
+                  ],
+                )
+              ],
+            ),
+          );
+        })
       ],
     );
   }
@@ -331,32 +604,15 @@ class _DashHomePageState extends State<DashHomePage> {
       StreamAuth info, SettingProvider settingProvider, BuildContext context) {
     return SliverAppBar(
       // title: Text(getLang.helloWorld),
-      expandedHeight: 120,
+      expandedHeight: (getWidth > 500 ? 180 : 150) + 120,
       pinned: true,
       title: Row(
         children: [
-          CircleAvatar(
-              child: RandomAvatar(
-            DateTime.now().toIso8601String(),
-            height: 50,
-            width: 52,
-          )),
-          width10(),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                titleLargeText(getLang.helloWorld, context),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined,
-                        color: Colors.greenAccent, size: 15),
-                    capText('Mohali,Punjab', context),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          buildCachedNetworkImage(
+              'https://www.nathorizon.com/public/images/logomain.png',
+              ph: 70,
+              pw: 120,
+              fit: BoxFit.contain),
         ],
       ),
       actions: [
@@ -365,32 +621,105 @@ class _DashHomePageState extends State<DashHomePage> {
           IconButton(
               onPressed: () => goToHomeSearch(),
               icon: const Icon(Icons.search)),
-        IconButton(
-            onPressed: () => settingProvider.setThemeMode(context),
-            icon: Icon(settingProvider.themeMode == ThemeMode.dark
-                ? Icons.light_mode
-                : Icons.dark_mode)),
+        const ToggleBrightnessButton(),
       ],
       flexibleSpace: FlexibleSpaceBar(
-        background: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+        background: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: GestureDetector(
-                onTap: () {
-                  goToHomeSearch();
-                },
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                  ),
-                  child: bodyMedText(
-                    'Search service or shops here...',
-                    context,
-                  ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    getTheme.colorScheme.primary.withOpacity(0.1),
+                    appLogoColor.withOpacity(0.1),
+
+                    // Color(0x7bfbe6cc),
+                    // Color(0x66d0d4fc),
+                    // Color(0xFFF9D0DC),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
+              ),
+            ),
+            // Apply blur effect to the gradient
+
+            Positioned(
+              right: 0,
+              bottom: 0,
+              top: 0,
+              left: getWidth * 0.1,
+              child: buildCachedNetworkImage(
+                  'https://www.nathorizon.com/public/user/images/slider-5.png',
+                  opacity: 0.4,
+                  fit: BoxFit.contain),
+            ),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: paddingDefault * 2),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  titleLargeText(
+                      'Defined, Collect And Sell Super Rate NFT ', context,
+                      fontSize: getWidth > 500 ? 32 : 25),
+                  bodyMedText(
+                      "Huge collection of NFTs from the world's best artists and creators.",
+                      context),
+                  height10(),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: GestureDetector(
+                      onTap: () {
+                        goToHomeSearch();
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                            prefixIcon: SizedBox(
+                              width: 100,
+                              child: Row(
+                                children: [
+                                  width5(),
+                                  SizedBox(
+                                      width: 25,
+                                      child: assetImages(PNGAssets.appLogo,
+                                          color: getTheme.colorScheme.primary)),
+                                  width5(),
+                                  bodyLargeText('NAT', context),
+                                  SizedBox(
+                                      height: 25,
+                                      child: VerticalDivider(
+                                          color: getTheme.colorScheme.primary)),
+                                ],
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: const BorderSide(
+                                    color: Colors.transparent)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: const BorderSide(
+                                    color: Colors.transparent))),
+                        child: bodyMedText('Search Keywords...', context),
+                      ),
+                    ),
+                  ),
+                  height10(),
+                  FilledButton(
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Explore'),
+                        width10(),
+                        const Icon((Icons.arrow_forward)),
+                      ],
+                    ),
+                    // label: Text('Explore'),
+                  )
+                ],
               ),
             ),
           ],
@@ -628,7 +957,7 @@ Column buildDemoColumn(ConnectivityProvider provider, BuildContext context,
       const Divider(),
       bodyLargeText('Web View', context),
       FilledButton(
-        onPressed: () => context.goNamed(RoutePath.explore, queryParameters: {
+        onPressed: () => context.goNamed(RoutePath.web, queryParameters: {
           'url': 'https://vimeo.com/event/3582236/embed',
           'showAppBar': '1',
           'showToast': '0',

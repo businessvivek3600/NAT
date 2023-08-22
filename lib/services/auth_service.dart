@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:my_global_tools/providers/auth_provider.dart';
 import 'package:my_global_tools/screens/Onboardings/on_boarding_page.dart';
 import 'package:my_global_tools/utils/default_logger.dart';
 import 'package:my_global_tools/utils/my_dialogs.dart';
@@ -52,6 +53,7 @@ class StreamAuth {
     _userStreamController.stream.listen((UserData? currentUser) {
       infoLog('showOnBoarding $showOnBoarding', 'StreamAuth');
       _currentUser = currentUser;
+      sl<AuthProvider>().updateUser(_currentUser);
     });
   }
 
@@ -65,6 +67,7 @@ class StreamAuth {
     // await Future<void>.delayed(const Duration(seconds: 1));
     var authRepo = sl.get<AuthRepo>();
     _currentUser = await authRepo.getUser();
+    sl<AuthProvider>().updateUser(_currentUser);
     return _currentUser != null;
   }
 
@@ -84,10 +87,10 @@ class StreamAuth {
   }
 
   /// Signs in a user with an artificial delay to mimic async operation.
-  Future<void> signIn(UserData userData, {bool onBoarding = false,int bottomIndex=0}) async {
+  Future<void> signIn(UserData userData,
+      {bool onBoarding = false, int bottomIndex = 0}) async {
     showOnBoarding = onBoarding;
     SpUtils().setOnBoarding(false);
-
     var authRepo = sl.get<AuthRepo>();
     await authRepo.saveUser(userData);
     UserData? user = await authRepo.getUser();

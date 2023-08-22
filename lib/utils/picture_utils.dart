@@ -71,6 +71,7 @@ CachedNetworkImage buildCachedNetworkImage(String image,
     {double? ph,
     double? pw,
     double? borderRadius,
+    double opacity=1,
     BoxFit? fit,
     bool fullPath = false,
     String? placeholder}) {
@@ -80,8 +81,10 @@ CachedNetworkImage buildCachedNetworkImage(String image,
     imageBuilder: (context, image) => ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius ?? 0),
       child: Container(
+        height: ph ?? 50,
+        width: pw ?? 100,
         decoration: BoxDecoration(
-            image: DecorationImage(image: image, fit: fit ?? BoxFit.cover)),
+            image: DecorationImage(image: image, fit: fit ?? BoxFit.cover,opacity: opacity)),
       ),
     ),
     placeholder: (context, url) => Center(

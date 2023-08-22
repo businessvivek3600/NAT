@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../Bookings/booking_details_page.dart';
-import '../BottomNav/bookings.dart';
+import '../Bookings/blogs.dart';
+import '../BottomNav/explore.dart';
 import '../BottomNav/dash_home_page.dart';
 import '/providers/auth_provider.dart';
 import '/providers/dashboard_provider.dart';
@@ -34,11 +34,12 @@ class Home extends StatelessWidget {
                     body: dashProvider.bottomIndex == 4
                         ? const DashSettingPage()
                         : dashProvider.bottomIndex == 3
-                            ? BookingDetailPage()
+                            ? const BlogsPage(backAllowed: false)
                             : dashProvider.bottomIndex == 2
-                                ? SlotBookingPage(shop: 'none', service: 'none')
+                                ? const SlotBookingPage(
+                                    shop: 'none', service: 'none')
                                 : dashProvider.bottomIndex == 1
-                                    ? const Bookings()
+                                    ? const Explore(backAllowed: false)
                                     : DashHomePage(),
                     bottomNavigationBar: const DashBottomNav(),
                   );

@@ -131,9 +131,12 @@ class _LoginScreenState extends State<LoginScreen>
               painter: TopRightCornerPainter(),
               size: Size(Get.size.width, Get.size.height),
             ),
-            CustomPaint(
-              painter: BottomLeftCornerPainter(),
-              size: Size(Get.size.width, Get.size.height),
+            Visibility(
+              visible: !_emailFocus.hasFocus && !_passFocus.hasFocus,
+              child: CustomPaint(
+                painter: BottomLeftCornerPainter(),
+                size: Size(Get.size.width, Get.size.height),
+              ),
             ),
             CustomScrollView(
               slivers: [
@@ -167,7 +170,8 @@ class _LoginScreenState extends State<LoginScreen>
                               const ToggleBrightnessButton()
                             ],
                           ),
-                          bodyLargeText('Good to see you again', context),
+                          bodyLargeText('Good to see you again', context,
+                              fontSize: 18),
                           height30(Get.height * 0.1),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -285,36 +289,7 @@ class _LoginScreenState extends State<LoginScreen>
                               ),
                             ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Transform.scale(
-                                  scale: 0.7,
-                                  child: FlutterSocialButton(
-                                      onTap: () {
-                                        primaryFocus?.unfocus();
-                                        context.pushNamed(RouteName.phoneAuth);
-                                      },
-                                      mini: true,
-                                      buttonType: ButtonType.phone)),
-                              Transform.scale(
-                                  scale: 0.7,
-                                  child: FlutterSocialButton(
-                                      onTap: () {
-                                        primaryFocus?.unfocus();
-                                      },
-                                      mini: true,
-                                      buttonType: ButtonType.google)),
-                              Transform.scale(
-                                  scale: 0.7,
-                                  child: FlutterSocialButton(
-                                      onTap: () {
-                                        primaryFocus?.unfocus();
-                                      },
-                                      mini: true,
-                                      buttonType: ButtonType.facebook)),
-                            ],
-                          ),
+                          // buildSocialLoginSection(context),
                           // Divider(),
                         ],
                       ),
@@ -326,6 +301,39 @@ class _LoginScreenState extends State<LoginScreen>
           ],
         ),
       ),
+    );
+  }
+
+  Row buildSocialLoginSection(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Transform.scale(
+            scale: 0.7,
+            child: FlutterSocialButton(
+                onTap: () {
+                  primaryFocus?.unfocus();
+                  context.pushNamed(RouteName.phoneAuth);
+                },
+                mini: true,
+                buttonType: ButtonType.phone)),
+        Transform.scale(
+            scale: 0.7,
+            child: FlutterSocialButton(
+                onTap: () {
+                  primaryFocus?.unfocus();
+                },
+                mini: true,
+                buttonType: ButtonType.google)),
+        Transform.scale(
+            scale: 0.7,
+            child: FlutterSocialButton(
+                onTap: () {
+                  primaryFocus?.unfocus();
+                },
+                mini: true,
+                buttonType: ButtonType.facebook)),
+      ],
     );
   }
 }

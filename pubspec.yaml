@@ -80,6 +80,9 @@ dependencies:
   pinput: ^3.0.0
   anim_search_bar: ^2.0.3
   google_maps_flutter: ^2.4.0
+  flutter_timer_countdown: ^1.0.5
+  collapsible_sidebar: ^2.0.5+1
+  flutter_side_menu: ^0.4.0
 
 dev_dependencies:
   flutter_test:
@@ -115,7 +118,7 @@ flutter:
   assets:
     - assets/
     - assets/designs/
-    - assets/svg/
+    - assets/svgs/
     - assets/images/
     - assets/images/process_timeline/
     - assets/videos/

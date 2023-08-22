@@ -7,11 +7,12 @@ import 'color.dart';
 
 final lightTheme = ThemeData(
     useMaterial3: true,
-    fontFamily: 'ubantu',
+    fontFamily: 'inherit',
     brightness: Brightness.light,
     // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)
     //     .copyWith(brightness: Brightness.light),
-    colorSchemeSeed: Color(0x78035AFD),
+    // colorSchemeSeed: Color(0x78035AFD),
+    colorSchemeSeed: const Color(0x783749E9),
     inputDecorationTheme: buildInputDecorationTheme(Brightness.light),
     textTheme: myTextTheme
 
@@ -65,8 +66,9 @@ final darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
     // colorSchemeSeed: ColorScheme.fromImageProvider(provider: NetworkImage(url),brightness: Brightness.dark),
-    colorSchemeSeed: Color(0x7803FDE8),
-    fontFamily: 'ubantu',
+    // colorSchemeSeed: Color(0x7803FDE8),
+    colorSchemeSeed: Color(0x78191720),
+    fontFamily: 'inherit',
     inputDecorationTheme: buildInputDecorationTheme(Brightness.dark),
     textTheme: myTextTheme
     // primaryColor: mainColor,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_global_tools/constants/api_const.dart';
+import 'package:my_global_tools/models/user/user_data_model.dart';
 import 'package:my_global_tools/utils/api_handler_utils.dart';
 import 'package:my_global_tools/utils/default_logger.dart';
 
@@ -11,7 +12,7 @@ class AuthProvider with ChangeNotifier {
   final AuthRepo authRepo;
   final String tag = 'AuthProvider';
   AuthProvider({required this.authRepo});
-
+  UserData? user;
   bool loadingStates = false;
   Future<void> getStates(BuildContext context) async {
     loadingStates = true;
@@ -69,5 +70,10 @@ class AuthProvider with ChangeNotifier {
 
   clear() async {
     await clearSharedData();
+  }
+
+  void updateUser(UserData? currentUser) {
+    user = currentUser;
+    notifyListeners();
   }
 }

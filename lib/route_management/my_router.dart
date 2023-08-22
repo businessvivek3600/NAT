@@ -178,10 +178,11 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_global_tools/screens/BottomNav/explore.dart';
 import '../screens/App/Booking/slot_booking.dart';
 import '../screens/App/Service/service_detail_page.dart';
 import '../screens/App/Shop/shopDetailsPage.dart';
-import '../screens/Bookings/booking_details_page.dart';
+import '../screens/Bookings/blogs.dart';
 import '/screens/App/Service/services_page.dart';
 import '../screens/App/Category/categoryDetailsPage.dart';
 import '/screens/User_Preferences/about_page.dart';
@@ -245,6 +246,23 @@ class MyRouter {
                     ),
                 null),
             _newRoute2(
+              RouteName.blogs,
+              (GoRouterState state) => BlogsPage(
+                  // service: state.queryParameters['service'] ?? 'none',
+                  // shop: state.queryParameters['shop'] ?? 'none',
+                  ),
+              null,
+            ),
+            _newRoute2(
+              RouteName.blogDetails,
+              (GoRouterState state) => BlogDetailsPage(
+                  // service: state.queryParameters['service'] ?? 'none',
+                  // shop: state.queryParameters['shop'] ?? 'none',
+                  ),
+              null,
+              // path: RoutePath.blogDetails,
+            ),
+            _newRoute2(
                 RouteName.service,
                 (GoRouterState state) => ServiceDetailsPage(
                       query: state.queryParameters['service'] ?? 'none',
@@ -253,29 +271,25 @@ class MyRouter {
                 null,
                 routes: [
                   _newRoute2(
-                      RouteName.slotBooking,
-                      (GoRouterState state) => SlotBookingPage(
-                            service: state.queryParameters['service'] ?? 'none',
-                            shop: state.queryParameters['shop'] ?? 'none',
-                          ),
-                      null,
-                      ),
-                  _newRoute2(
-                      RouteName.bookingDetail,
-                      (GoRouterState state) => BookingDetailPage(
-                            // service: state.queryParameters['service'] ?? 'none',
-                            // shop: state.queryParameters['shop'] ?? 'none',
-                          ),
-                      null,
-                      ),
+                    RouteName.slotBooking,
+                    (GoRouterState state) => SlotBookingPage(
+                      service: state.queryParameters['service'] ?? 'none',
+                      shop: state.queryParameters['shop'] ?? 'none',
+                    ),
+                    null,
+                  ),
                 ]),
+            _newRoute2(
+                RouteName.explore, (GoRouterState state) => Explore(), null),
+            _newRoute2(RouteName.nftDetails,
+                (GoRouterState state) => NFTDetails(), null),
             _newRoute2(
                 RouteName.shop,
                 (GoRouterState state) => ShopDetailPage(
                     shop: state.queryParameters['service'] ?? 'none'),
                 null),
             _newRoute2(
-                RouteName.explore,
+                RouteName.web,
                 (GoRouterState state) => WebViewExample(
                     url: state.queryParameters['url'],
                     showAppBar: state.queryParameters['showAppBar'] ?? '1',
@@ -397,10 +411,10 @@ GoRoute _newRoute(String name, Widget page, String transition,
 
 GoRoute _newRoute2(String name, Widget Function(GoRouterState state) page,
         RouteTransition? transition,
-        {bool subPath = true, List<RouteBase>? routes}) =>
+        {bool subPath = true, List<RouteBase>? routes, String? path}) =>
     GoRoute(
         name: name,
-        path: '${!subPath ? '/' : ''}$name',
+        path: path ?? '${!subPath ? '/' : ''}$name',
         pageBuilder: (BuildContext context, GoRouterState state) =>
             animatedRoute2(state, page, transition: transition),
         routes: routes ?? []);

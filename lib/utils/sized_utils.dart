@@ -21,7 +21,9 @@ Widget width100([double? width]) => SizedBox(width: width ?? 100);
 
 Size getSize(BuildContext context) => MediaQuery.of(context).size;
 double get getWidth => MediaQuery.of(Get.context!).size.width;
+double get getHeight => MediaQuery.of(Get.context!).size.height;
 ThemeData get getTheme => Theme.of(Get.context!);
+bool get darkMode => Theme.of(Get.context!).brightness==Brightness.dark;
 
 Widget space(double p) =>
     SizedBox(height: MediaQuery.of(Get.context!).size.height * p / 100);
@@ -29,3 +31,12 @@ double perSize(double p) => MediaQuery.of(Get.context!).size.height * p / 100;
 
 double paddingDefault = 8;
 double spaceDefault = 16;
+
+//default device sizes
+double mobHeight = 870;
+double smallHeight = 500;
+double tabHeight = 1000;
+
+double mobWidth = 500;
+double smallWidth = 360;
+double tabWidth = 800;

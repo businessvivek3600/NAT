@@ -12,6 +12,8 @@ class RoutePath {
   static const String home = '/${RouteName.home}';
 
   ///sub-paths
+  static const String web = RouteName.web;
+  static const String nftDetails = RouteName.nftDetails;
   static const String explore = RouteName.explore;
   static const String search = RouteName.search;
   static const String categories = RouteName.categories;
@@ -19,7 +21,8 @@ class RoutePath {
   static const String services = RouteName.services;
   static const String service = RouteName.service;
   static const String slotBooking = RouteName.slotBooking;
-  static const String bookingDetail = RouteName.bookingDetail;
+  static const String blogs = RouteName.blogs;
+  static const String blogDetails = RouteName.blogDetails;
   static const String shop = RouteName.shop;
   static const String about = RouteName.about;
 

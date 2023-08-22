@@ -14,9 +14,12 @@ class RouteName {
   static const String services = 'services';
   static const String service = 'service';
   static const String slotBooking = 'slotBooking';
-  static const String bookingDetail = 'bookingDetail';
+  static const String blogs = 'blogs';
+  static const String blogDetails = 'blogDetails';
   static const String shop = 'shop';
   static const String explore = 'explore';
+  static const String web = 'web';
+  static const String nftDetails = 'nftDetails';
 
   ///main setting
   static const String notificationPage = 'notificationPage';
@@ -38,4 +41,5 @@ class RouteName {
 
   ///Ecommerce
   static const String ecomCategoryPage = 'product';
+
 }
