@@ -10,20 +10,22 @@ import 'package:my_global_tools/widgets/social_login_buttons.dart';
 import '/utils/default_logger.dart';
 
 class EmailRegistrationForm extends StatefulWidget {
-  const EmailRegistrationForm({super.key});
-
+  const EmailRegistrationForm({super.key, this.refer});
+  final String? refer;
   @override
   _EmailRegistrationFormState createState() => _EmailRegistrationFormState();
 }
 
 class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _referController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  final FocusNode _referFocus = FocusNode();
   final FocusNode _nameFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passFocus = FocusNode();
@@ -63,7 +65,11 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
       infoLog('Confirm Password: ${_confirmPasswordController.text}');
     }
   }
-
+@override
+  void initState() {
+    _referController.text=widget.refer??'';
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -130,6 +136,21 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
                                     const EdgeInsets.symmetric(horizontal: 0),
                                 child: Column(
                                   children: [
+                                    TextFormField(
+                                      focusNode: _referFocus,
+                                      controller: _referController,
+                                      textInputAction: TextInputAction.next,
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.white10,
+                                        labelText: 'Enter Referral Code*',
+                                        prefixIcon: Icon(Icons.text_fields_rounded,
+                                            color:
+                                                getTheme.colorScheme.primary),
+                                      ),
+                                      // validator: (value) =>
+                                      //     _customValidator(value, 'full name'),
+                                    ),
+                                    const SizedBox(height: 16),
                                     TextFormField(
                                       focusNode: _nameFocus,
                                       controller: _fullNameController,
@@ -274,7 +295,7 @@ class _EmailRegistrationFormState extends State<EmailRegistrationForm> {
                 )
               ],
             ),
-            GoBackButton(bottom: Get.height-100),
+            GoBackButton(bottom: Get.height - 100),
           ],
         ),
       ),

@@ -6,20 +6,20 @@ class RouteName {
   static const String login = 'login';
   static const String phoneAuth = 'phoneAuth';
   static const String verifyPhoneOTP = 'verifyPhoneOTP';
-  static const String registration = 'registration';
-  static const String home = 'home';
+  static const String registration = 'register';
+  static const String home = '/';
   static const String search = 'search';
   static const String categories = 'categories';
   static const String categoryDetail = 'categoryDetail';
   static const String services = 'services';
   static const String service = 'service';
-  static const String slotBooking = 'slotBooking';
+  static const String dashboard = 'dashboard';
   static const String blogs = 'blogs';
   static const String blogDetails = 'blogDetails';
   static const String shop = 'shop';
   static const String explore = 'explore';
   static const String web = 'web';
-  static const String nftDetails = 'nftDetails';
+  static const String nftDetails = 'nft';
 
   ///main setting
   static const String notificationPage = 'notificationPage';

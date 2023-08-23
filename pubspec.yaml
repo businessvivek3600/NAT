@@ -44,7 +44,6 @@ dependencies:
   permission_handler: ^10.4.3
   api_cache_manager: ^1.0.2
   get_it: ^7.6.0
-#  intl: ^0.18.0
   html: ^0.15.4
   package_info_plus: ^4.0.2
   go_router: ^9.0.3
@@ -83,6 +82,11 @@ dependencies:
   flutter_timer_countdown: ^1.0.5
   collapsible_sidebar: ^2.0.5+1
   flutter_side_menu: ^0.4.0
+  data_grid: ^0.1.0
+  pluto_grid: ^7.0.2
+  simple_progress_indicators: ^0.2.0
+  intl: ^0.18.0
+  loadmore: ^2.1.0
 
 dev_dependencies:
   flutter_test:

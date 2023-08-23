@@ -179,7 +179,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_global_tools/screens/BottomNav/explore.dart';
-import '../screens/App/Booking/slot_booking.dart';
+import '../screens/App/Booking/dashboard_page.dart';
 import '../screens/App/Service/service_detail_page.dart';
 import '../screens/App/Shop/shopDetailsPage.dart';
 import '../screens/Bookings/blogs.dart';
@@ -220,7 +220,7 @@ class MyRouter {
     debugLogDiagnostics: true,
     routes: <GoRoute>[
       GoRoute(
-          name: RouteName.home,
+          name: 'home',
           path: RoutePath.home,
           builder: (BuildContext context, GoRouterState state) => const Home(),
           routes: [
@@ -263,24 +263,26 @@ class MyRouter {
               // path: RoutePath.blogDetails,
             ),
             _newRoute2(
-                RouteName.service,
-                (GoRouterState state) => ServiceDetailsPage(
-                      query: state.queryParameters['service'] ?? 'none',
-                      shop: state.queryParameters['shop'] ?? 'none',
-                    ),
-                null,
-                routes: [
-                  _newRoute2(
-                    RouteName.slotBooking,
-                    (GoRouterState state) => SlotBookingPage(
-                      service: state.queryParameters['service'] ?? 'none',
-                      shop: state.queryParameters['shop'] ?? 'none',
-                    ),
-                    null,
-                  ),
-                ]),
+              RouteName.dashboard,
+                  (GoRouterState state) => DashboardPage(
+                service: state.queryParameters['service'] ?? 'none',
+                shop: state.queryParameters['shop'] ?? 'none',
+              ),
+              null,
+            ),
             _newRoute2(
                 RouteName.explore, (GoRouterState state) => Explore(), null),
+
+
+            _newRoute2(
+              RouteName.service,
+              (GoRouterState state) => ServiceDetailsPage(
+                query: state.queryParameters['service'] ?? 'none',
+                shop: state.queryParameters['shop'] ?? 'none',
+              ),
+              null,
+            ),
+
             _newRoute2(RouteName.nftDetails,
                 (GoRouterState state) => NFTDetails(), null),
             _newRoute2(
@@ -341,8 +343,11 @@ class MyRouter {
       _newRoute2(RouteName.verifyPhoneOTP,
           (GoRouterState state) => const VerifyPhoneOTPPage(), null,
           subPath: false),
-      _newRoute2(RouteName.registration,
-          (GoRouterState state) => const EmailRegistrationForm(), null,
+      _newRoute2(
+          RouteName.registration,
+          (GoRouterState state) =>
+              EmailRegistrationForm(refer: state.queryParameters['refer']),
+          null,
           subPath: false),
       _newRoute2(RouteName.splash,
           (GoRouterState state) => const SplashScreen2(), null,
@@ -374,25 +379,34 @@ FutureOr<String?> _redirect(BuildContext context, GoRouterState state) async {
   if (showOnBoarding) {
     return RoutePath.onBoarding;
   }
-  if (!loggedIn && path == RoutePath.registration) {
-    return RoutePath.registration;
-  } else if (!loggedIn && path == RoutePath.phoneAuth) {
+  if (!loggedIn && path == RoutePath.register) {
+    return RoutePath.register;
+  }
+  if (!loggedIn && path == RoutePath.phoneAuth) {
     return RoutePath.phoneAuth;
-  } else if (!loggedIn && path == RoutePath.verifyPhoneOTP) {
+  }
+  if (!loggedIn && path == RoutePath.verifyPhoneOTP) {
     return RoutePath.verifyPhoneOTP;
-  } else if (!loggedIn) {
+  }
+  if (!loggedIn) {
     return RoutePath.login;
   }
 
   // if the user is logged in but still on the login page, send them to
   // the home page
+  infoLog(
+      'path is $path   *contains home  ${path.startsWith(RoutePath.home)}   not-exception ${path.startsWith(RoutePath.home) && (!path.contains(RoutePath.login) && !path.contains(RoutePath.register))}   $path',
+      'User is logged in');
   if (loggingIn) {
-    infoLog(
-        'path is $path   *contains home  ${path.startsWith(RoutePath.home)}',
-        'User is logged in');
-    if (path.startsWith(RoutePath.home)) {
+    if (path.startsWith(RoutePath.home) &&
+        (!path.contains(RoutePath.login) &&
+            !path.contains(RoutePath.register))) {
+      infoLog(
+          'path is $path   home route  ${path.startsWith(RoutePath.home)}   ${!path.contains(RoutePath.register)}',
+          'User is logged in');
       return path;
     } else {
+      infoLog('redirecting from path is $path ', 'User is logged in');
       return RoutePath.home;
     }
   }

@@ -136,7 +136,7 @@ class _ServiceDetailsPageState extends State<ServiceDetailsPage> {
         style: FilledButton.styleFrom(
             backgroundColor: getTheme.colorScheme.primary),
         onPressed: () {
-          context.pushNamed(RouteName.slotBooking,
+          context.pushNamed(RouteName.dashboard,
               queryParameters: {"service": widget.query, "shop": widget.shop});
         },
         label: bodyLargeText('Schedule', context, color: Colors.white),

@@ -60,7 +60,7 @@ class _DemoHelperState extends State<DemoHelper> {
           },
           onEnd: () async {
             showOnBoarding = SpUtils().showOnBoarding;
-            context.goNamed(RouteName.home);
+            context.go(RouteName.home);
           },
         );
       case DemoType.fadeIn:
@@ -76,7 +76,7 @@ class _DemoHelperState extends State<DemoHelper> {
           onAnimationEnd: () => debugPrint("On Fade In End"),
           onEnd: () async {
             showOnBoarding = SpUtils().showOnBoarding;
-            context.goNamed(RouteName.home);
+            context.go(RouteName.home);
           },
         );
       case DemoType.scale:
@@ -94,7 +94,7 @@ class _DemoHelperState extends State<DemoHelper> {
           },
           onEnd: () async {
             showOnBoarding = SpUtils().showOnBoarding;
-            context.goNamed(RouteName.home);
+            context.go(RouteName.home);
           },
           childWidget: assetImages(PNGAssets.appLogo),
           duration: const Duration(milliseconds: 1500),
@@ -109,7 +109,7 @@ class _DemoHelperState extends State<DemoHelper> {
               height: 100, width: 100, child: assetImages(PNGAssets.appLogo)),
           onEnd: () async {
             showOnBoarding = SpUtils().showOnBoarding;
-            context.goNamed(RouteName.home);
+            context.go(RouteName.home);
           },
         );
       case DemoType.usingGradient:
@@ -126,7 +126,7 @@ class _DemoHelperState extends State<DemoHelper> {
           ),
           onEnd: () async {
             showOnBoarding = SpUtils().showOnBoarding;
-            context.goNamed(RouteName.home);
+            context.go(RouteName.home);
           },
         );
       case DemoType.dynamicNextScreenFadeIn:
@@ -136,7 +136,7 @@ class _DemoHelperState extends State<DemoHelper> {
           onAnimationEnd: () => debugPrint("On Fade In End"),
           onEnd: () async {
             showOnBoarding = SpUtils().showOnBoarding;
-            context.goNamed(RouteName.home);
+            context.go(RouteName.home);
           },
         );
       case DemoType.custom:
@@ -161,7 +161,7 @@ class _DemoHelperState extends State<DemoHelper> {
           ),
           onEnd: () async {
             showOnBoarding = SpUtils().showOnBoarding;
-            context.goNamed(RouteName.home);
+            context.go(RouteName.home);
           },
         );
       default:

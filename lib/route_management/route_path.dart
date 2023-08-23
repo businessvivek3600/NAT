@@ -8,8 +8,8 @@ class RoutePath {
   static const String login = '/${RouteName.login}';
   static const String phoneAuth = '/${RouteName.phoneAuth}';
   static const String verifyPhoneOTP = '/${RouteName.verifyPhoneOTP}';
-  static const String registration = '/${RouteName.registration}';
-  static const String home = '/${RouteName.home}';
+  static const String register = '/${RouteName.registration}';
+  static const String home = RouteName.home;
 
   ///sub-paths
   static const String web = RouteName.web;
@@ -20,7 +20,7 @@ class RoutePath {
   static const String categoryDetail = RouteName.categoryDetail;
   static const String services = RouteName.services;
   static const String service = RouteName.service;
-  static const String slotBooking = RouteName.slotBooking;
+  static const String slotBooking = RouteName.dashboard;
   static const String blogs = RouteName.blogs;
   static const String blogDetails = RouteName.blogDetails;
   static const String shop = RouteName.shop;

@@ -4,7 +4,7 @@ import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropdown_alert/alert_controller.dart';
 import 'package:flutter_dropdown_alert/model/data_alert.dart';
-import 'package:my_global_tools/utils/text.dart';
+import '/utils/text.dart';
 
 class Toasts {
   // awesome_snackbar_content

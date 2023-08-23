@@ -6,7 +6,7 @@ import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_global_tools/screens/BottomNav/dash_setting_page.dart';
+import '/screens/BottomNav/dash_setting_page.dart';
 import '../../repo_injection.dart';
 import '../components/shop_card_widget.dart';
 import '/constants/asset_constants.dart';

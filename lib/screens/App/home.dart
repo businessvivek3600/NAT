@@ -11,7 +11,7 @@ import '../BottomNav/dash_setting_page.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/auth_service.dart';
-import 'Booking/slot_booking.dart';
+import 'Booking/dashboard_page.dart';
 import 'Shop/shopDetailsPage.dart';
 
 class Home extends StatelessWidget {
@@ -36,7 +36,7 @@ class Home extends StatelessWidget {
                         : dashProvider.bottomIndex == 3
                             ? const BlogsPage(backAllowed: false)
                             : dashProvider.bottomIndex == 2
-                                ? const SlotBookingPage(
+                                ? const DashboardPage(
                                     shop: 'none', service: 'none')
                                 : dashProvider.bottomIndex == 1
                                     ? const Explore(backAllowed: false)
