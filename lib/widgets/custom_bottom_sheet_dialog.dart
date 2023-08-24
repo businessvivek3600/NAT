@@ -15,6 +15,7 @@ class CustomBottomSheet extends StatefulWidget {
   final Widget child;
   final EdgeInsetsDirectional margin;
   final EdgeInsetsDirectional padding;
+  final MainAxisAlignment mainAxisAlignment;
   final Curve curve;
   final TransitionType transitionType;
   final bool showCloseIcon;
@@ -28,10 +29,12 @@ class CustomBottomSheet extends StatefulWidget {
       this.width,
       this.backgroundColor,
       this.dismissible = true,
+      required this.mainAxisAlignment,
       required this.child,
-      this.padding =
-          const EdgeInsetsDirectional.only(start: 20, bottom: 20, end: 20, top: 30),
-      this.margin = const EdgeInsetsDirectional.only(start: 20, bottom: 60, end: 20),
+      this.padding = const EdgeInsetsDirectional.only(
+          start: 20, bottom: 20, end: 20, top: 30),
+      this.margin =
+          const EdgeInsetsDirectional.only(start: 20, bottom: 60, end: 20),
       this.curve = Curves.easeIn,
       required this.onDismiss,
       this.transitionType = TransitionType.bottom,
@@ -49,6 +52,9 @@ class CustomBottomSheet extends StatefulWidget {
       Color? backgroundColor,
       bool dismissible = true,
       bool enableDrag = false,
+      bool normalSheet = false,
+      bool isScrollControlled = false,
+      MainAxisAlignment mainAxisAlignment = MainAxisAlignment.end,
       Future<bool> Function()? onDismiss,
       required WidgetBuilder builder,
       Curve curve = Curves.bounceInOut,
@@ -56,36 +62,45 @@ class CustomBottomSheet extends StatefulWidget {
       int duration = 500,
       double elevation = 0,
       bool showCloseIcon = true}) async {
-    return await showModalBottomSheet<T>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      elevation: elevation,
-      isScrollControlled: true,
-      enableDrag: enableDrag,
-      builder: (BuildContext context) {
-        return CustomBottomSheet(
-          height: height,
-          width: width,
-          transitionType: transitionType,
-          backgroundColor: backgroundColor,
-          dismissible: dismissible,
-          showCloseIcon: showCloseIcon,
-          curve: curve,
-          onDismiss: onDismiss != null && !dismissible
-              ? () async {
-                  bool willPop = await onDismiss();
-                  infoLog('**** will pop $willPop', 'CustomBottomSheet.show');
-                  if (willPop) {
-                    context.pop();
-                  }
-                  return willPop;
-                }
-              : () async => false,
-          duration: duration,
-          child: builder(context),
-        );
-      },
+    Widget sheet = CustomBottomSheet(
+      height: height,
+      width: width,
+      transitionType: transitionType,
+      backgroundColor: backgroundColor,
+      dismissible: dismissible,
+      showCloseIcon: showCloseIcon,
+      curve: curve,
+      mainAxisAlignment: mainAxisAlignment,
+      onDismiss: onDismiss != null && !dismissible
+          ? () async {
+              bool willPop = await onDismiss();
+              infoLog('**** will pop $willPop', 'CustomBottomSheet.show');
+              if (willPop) {
+                context.pop();
+              }
+              return willPop;
+            }
+          : () async => false,
+      duration: duration,
+      child: builder(context),
     );
+    return normalSheet
+        ? await showModalBottomSheet<T>(
+            context: context,
+            backgroundColor: Colors.transparent,
+            elevation: elevation,
+            isScrollControlled: isScrollControlled,
+            enableDrag: enableDrag,
+            builder: (BuildContext context) => sheet,
+          )
+        : await showModalBottomSheet<T>(
+            context: context,
+            backgroundColor: Colors.transparent,
+            elevation: elevation,
+            isScrollControlled: isScrollControlled,
+            enableDrag: enableDrag,
+            builder: (BuildContext context) => sheet,
+          );
   }
 }
 
@@ -106,7 +121,8 @@ class _CustomBottomSheetState extends State<CustomBottomSheet>
         transitionType: widget.transitionType,
         duration: widget.duration,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: widget.mainAxisAlignment,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Stack(
               children: [

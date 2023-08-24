@@ -5,6 +5,8 @@ class PNGNetwork {
 
 class PNGAssets {
   static const String appLogo = 'appLogo.png';
+  static const String timeSpan = 'icons8-time-span-48.png';
+  static const String joinPerson = 'icons8-join-58.png';
 }
 
 class SNGAssets {

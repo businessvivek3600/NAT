@@ -7,9 +7,19 @@ import 'package:collapsible_sidebar/collapsible_sidebar/collapsible_item_widget.
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:loadmore/loadmore.dart';
+import 'package:my_global_tools/route_management/route_name.dart';
+import 'package:my_global_tools/utils/color.dart';
+import '../../../utils/default_logger.dart';
+import '../../../widgets/buttonStyle.dart';
+import '../../../widgets/custom_bottom_sheet_dialog.dart';
+import '/constants/asset_constants.dart';
+import '/utils/date_utils.dart';
 import '../../../functions/functions.dart';
+import '../../../widgets/my_load_more_delegate.dart';
 import '../../../widgets/time_line/src/connector_theme.dart';
 import '../../../widgets/time_line/src/connectors.dart';
 import '../../../widgets/time_line/src/indicator_theme.dart';
@@ -18,7 +28,6 @@ import '../../../widgets/time_line/src/timeline_theme.dart';
 import '../../../widgets/time_line/src/timeline_tile_builder.dart';
 import '../../../widgets/time_line/src/timelines.dart';
 import '/utils/my_advanved_toasts.dart';
-import '/utils/my_toasts.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
@@ -138,14 +147,14 @@ class _DashboardPageState extends State<DashboardPage> {
         body: Stack(
           children: [
             SizedBox(
-              height: getHeight * 0.5,
+              height: getHeight * 0.3,
               width: double.maxFinite,
               child: buildCachedNetworkImage(
                   'https://www.nathorizon.com/public/user/images/thumb-pagetitle.png',
                   fit: BoxFit.cover),
             ),
             Container(
-              height: getHeight * 0.5,
+              height: getHeight * 0.3,
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                 colors: [
@@ -191,7 +200,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Drawer buildDrawer(GlobalKey<ScaffoldState> scaffoldKey) {
-    print(tabIndex);
     return Drawer(
       backgroundColor: Colors.transparent,
       child: Padding(
@@ -284,7 +292,6 @@ class _DashboardPageState extends State<DashboardPage> {
                                 isSelected: item.isSelected,
                                 parentComponent: true,
                                 onTap: () {
-                                  print('tab index is $tabIndex');
                                   if (tabIndex == index) return;
                                   item.onPressed();
                                   item.isSelected = true;
@@ -317,7 +324,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
 class _DashBoardBodyWidget extends StatefulWidget {
   const _DashBoardBodyWidget(
-      {super.key, required this.tabIndex, this.title, this.headline});
+      {required this.tabIndex, this.title, this.headline});
   final int tabIndex;
   final String? title;
   final String? headline;
@@ -544,22 +551,22 @@ class _DashBoardBodyWidgetState extends State<_DashBoardBodyWidget> {
                     : widget.title == 'Inventory'
                         ? buildInventory(context)
                         : widget.title == 'NAT Wallet'
-                            ? buildInventory(context)
+                            ? buildNatWallet(context)
                             : widget.title == 'Staking Wallets'
-                                ? buildInventory(context)
+                                ? buildStackingWallet(context)
                                 : widget.title == 'Commission Wallet'
                                     ? buildCommissionWallet(context)
                                     : widget.title == 'TBCC Wallet'
                                         ? buildTBCWallet(context)
                                         : widget.title == 'My Team'
-                                            ? buildInventory(context)
+                                            ? buildMyTeamViewWidget(context)
                                             : widget.title == 'Account Setting'
                                                 ? buildProfileEditPage(context)
                                                 : widget.title == 'Subscription'
                                                     ? buildSubscriptionContent(
                                                         context)
-                                                    : Card(
-                                                        child: Container(
+                                                    : const Card(
+                                                        child: SizedBox(
                                                             width: double
                                                                 .maxFinite,
                                                             height: double
@@ -573,8 +580,20 @@ class _DashBoardBodyWidgetState extends State<_DashBoardBodyWidget> {
     );
   }
 
+  buildMyTeamViewWidget(BuildContext context) {
+    return _MyTeamViewWidget();
+  }
+
+  buildNatWallet(BuildContext context) {
+    return const NATWalletList();
+  }
+
+  buildStackingWallet(BuildContext context) {
+    return const _StackingWalletList();
+  }
+
   buildCommissionWallet(BuildContext context) {
-    return _CommissionHistoryList();
+    return const _CommissionHistoryList();
   }
 
   Widget buildSubscriptionContent(BuildContext context) {
@@ -586,7 +605,7 @@ class _DashBoardBodyWidgetState extends State<_DashBoardBodyWidget> {
   }
 
   Widget buildInventory(BuildContext context) {
-    return const _PlutoGridExamplePage();
+    return _NFTListWidget();
   }
 
   Widget buildDashBoard(BuildContext context) {
@@ -685,7 +704,169 @@ class _DashBoardBodyWidgetState extends State<_DashBoardBodyWidget> {
   }
 
   buildTBCWallet(BuildContext context) {
-    return _TBCWalletHistoryList();
+    return const _TBCWalletHistoryList();
+  }
+}
+
+//_MyTeamViewWidget
+class UserData {
+  final int srNo;
+  final String username;
+  final String name;
+  final String referBy;
+  final String joiningDate;
+  final String activeDate;
+  final String status;
+
+  UserData({
+    required this.srNo,
+    required this.username,
+    required this.name,
+    required this.referBy,
+    required this.joiningDate,
+    required this.activeDate,
+    required this.status,
+  });
+}
+
+class _MyTeamViewWidget extends StatefulWidget {
+  @override
+  State<_MyTeamViewWidget> createState() => _MyTeamViewWidgetState();
+}
+
+class _MyTeamViewWidgetState extends State<_MyTeamViewWidget> {
+  int usersCount = 5;
+
+  List<UserData> generateRandomUsers(int count) => List.generate(
+      count,
+      (index) => UserData(
+            srNo: index,
+            username: 'NAT53450251',
+            name: '#$index Ehouman Adou',
+            referBy: 'NAT50933937',
+            joiningDate: DateTime.now()
+                .subtract(Duration(days: index))
+                .toIso8601String(),
+            activeDate: DateTime.now()
+                .subtract(Duration(days: index - 1))
+                .toIso8601String(),
+            status: index % 5 == 0 ? 'Inactive' : 'Active',
+          ));
+  @override
+  Widget build(BuildContext context) {
+    List<UserData> userData = generateRandomUsers(usersCount);
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: LoadMore(
+        isFinish: usersCount >= 20,
+        onLoadMore: _loadMore,
+        whenEmptyLoad: true,
+        delegate: const MyLoadMoreDelegate(),
+        textBuilder: DefaultLoadMoreTextBuilder.english,
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: paddingDefault),
+          itemCount: userData.length,
+          itemBuilder: (context, index) {
+            return _UserCard(userData: userData[index]);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _loadMore() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 10000));
+    if (mounted) {
+      setState(() {
+        usersCount += 5;
+      });
+    }
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 2000));
+    setState(() {
+      usersCount = 5;
+    });
+  }
+}
+
+class _UserCard extends StatelessWidget {
+  final UserData userData;
+
+  const _UserCard({required this.userData});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: paddingDefault),
+      // elevation: 7,
+      // color: Colors.white,
+      // shadowColor: Colors.transparent,
+
+      decoration: BoxDecoration(
+          color: getTheme.colorScheme.secondary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [BoxShadow(color: getTheme.colorScheme.background)]),
+      child: Padding(
+        padding: EdgeInsets.all(paddingDefault),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: bodyLargeText(userData.name, context)),
+                width5(),
+                Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingDefault / 2),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: userData.status.toLowerCase() == 'active'
+                            ? Colors.green
+                            : Colors.red),
+                    child: capText(userData.username, context,
+                        color: Colors.white)),
+              ],
+            ),
+            height5(),
+            Row(
+              children: [
+                const Icon(Icons.published_with_changes, size: 15),
+                width5(),
+                Expanded(child: bodyMedText(userData.referBy, context)),
+              ],
+            ),
+            height5(),
+            Row(
+              children: [
+                assetImages(PNGAssets.timeSpan, width: 15),
+                width5(),
+                Expanded(
+                    child: bodyMedText(
+                        MyDateUtils.formatDateTime(
+                            DateTime.parse(userData.joiningDate),
+                            'dd MMM yyyy'),
+                        context)),
+              ],
+            ),
+            height5(),
+            Row(
+              children: [
+                assetImages(PNGAssets.joinPerson, width: 15),
+                width5(),
+                Expanded(
+                    child: bodyMedText(
+                        MyDateUtils.formatDateTime(
+                            DateTime.parse(userData.activeDate), 'dd MMM yyyy'),
+                        context)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -714,24 +895,493 @@ List<DashboardWalletActivity> generateRandomActivities(int count) {
   return activities;
 }
 
-class _CommissionHistoryList extends StatefulWidget {
-  _CommissionHistoryList({Key? key});
+//_NATWalletHistoryList
+class NATWalletList extends StatefulWidget {
+  const NATWalletList({super.key});
 
   @override
-  State<_CommissionHistoryList> createState() => _CommissionHistoryListState();
+  State<NATWalletList> createState() => NATWalletListState();
 }
 
-class _CommissionHistoryListState extends State<_CommissionHistoryList> {
-  int activityCount = 20;
+class NATWalletListState extends State<NATWalletList>
+    with TickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var activities = generateRandomActivities(activityCount);
+    return Stack(
+      children: [
+        DefaultTabController(
+          length: 2,
+          child: Stack(
+            children: [
+              const SizedBox(height: double.maxFinite, width: double.maxFinite),
+              TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: _tabController,
+                  children: [
+                    buildStackTotal(context, type: 0),
+                    buildStackHistory(context, type: 1),
+                  ]),
+              buildTabBar(),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(
+              height: 25,
+              child: FilledButton(
+                  style: FilledButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: paddingDefault)),
+                  onPressed: () => showTransferBottomSheet(context),
+                  child: capText('Transfer', context, color: Colors.white)),
+            ),
+            width5(),
+            SizedBox(
+              height: 25,
+              child: FilledButton(
+                  style: FilledButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: paddingDefault)),
+                  onPressed: () => showStackBottomSheet(context),
+                  child: capText('Stack NAT', context, color: Colors.white)),
+            ),
+            width5(),
+            SizedBox(
+              height: 25,
+              child: FilledButton(
+                  style: FilledButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: paddingDefault)),
+                  onPressed: () => showBuyBottomSheet(context),
+                  child: capText('But NAT', context, color: Colors.white)),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  void showTransferBottomSheet(BuildContext context) {
+    CustomBottomSheet.show(
+      context: context,
+      curve: Curves.bounceIn,
+      duration: 200,
+      dismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      mainAxisAlignment: MainAxisAlignment.center,
+      onDismiss: () async {
+        return true;
+        bool? willPop = await CustomBottomSheet.show<bool>(
+          context: context,
+          // backgroundColor: Colors.transparent,
+          showCloseIcon: false,
+          curve: Curves.bounceIn,
+          builder: (context) => Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      style: buttonStyle(bgColor: Colors.green),
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Confirm'),
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton(
+                      style: buttonStyle(bgColor: Colors.red),
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        logD('will pop scope $willPop');
+
+        return willPop ?? false;
+      },
+      builder: (context) {
+        return const _TransferNATBottomSheetWidget();
+      },
+    );
+  }
+
+  void showStackBottomSheet(BuildContext context) {
+    CustomBottomSheet.show(
+      context: context,
+      curve: Curves.bounceIn,
+      duration: 200,
+      dismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      mainAxisAlignment: MainAxisAlignment.center,
+      onDismiss: () async {
+        return true;
+      },
+      builder: (context) {
+        return const _StackNATBottomSheetWidget();
+      },
+    );
+  }
+
+  void showBuyBottomSheet(BuildContext context) {
+    CustomBottomSheet.show(
+      context: context,
+      curve: Curves.bounceIn,
+      duration: 200,
+      dismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      mainAxisAlignment: MainAxisAlignment.center,
+      onDismiss: () async {
+        return true;
+      },
+      builder: (context) {
+        return const _BuyNATBottomSheetWidget();
+      },
+    );
+  }
+
+  Positioned buildTabBar() {
+    return Positioned(
+        bottom: 30,
+        right: 0,
+        left: 0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              height: 40,
+              width: 200,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: getTheme.colorScheme.onSecondary),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: TabBar(
+                  splashBorderRadius: BorderRadius.circular(50),
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                      color: getTheme.colorScheme.primary,
+                      borderRadius: BorderRadius.circular(50)),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: getTheme.textTheme.bodySmall?.color,
+                  labelStyle: GoogleFonts.ubuntu(
+                      fontSize: 18, fontWeight: FontWeight.w500),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  /* onTap: (val) => setState(() {
+                        primaryFocus?.unfocus();
+                      }),*/
+                  tabs: const [
+                    Tab(text: 'Total'),
+                    Tab(text: 'History'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget buildStackHistory(BuildContext context, {required int type}) {
+    return const _StackHistoryWidget();
+  }
+
+  Widget buildStackTotal(BuildContext context, {required int type}) {
+    return const _StackTotalWidget();
+  }
+}
+
+// ---> NAT Wallet BottomSheets
+class _TransferNATBottomSheetWidget extends StatefulWidget {
+  const _TransferNATBottomSheetWidget({super.key});
+
+  @override
+  State<_TransferNATBottomSheetWidget> createState() =>
+      _TransferNATBottomSheetWidgetState();
+}
+
+class _TransferNATBottomSheetWidgetState
+    extends State<_TransferNATBottomSheetWidget> {
+  TextEditingController username = TextEditingController();
+  TextEditingController amount = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            bodyLargeText('Transfer NAT', context),
+            Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingDefault / 2, vertical: 2),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.greenAccent.withOpacity(0.3)),
+                child: capText(
+                  '4.3468 NAT (43.468 \$)',
+                  context,
+                )),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Form(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: username,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  labelStyle: TextStyle(fontSize: 14),
+                  labelText: 'Enter Username',
+                  prefixIcon: Icon(Icons.person),
+                ),
+              ),
+              height10(),
+              TextFormField(
+                controller: amount,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  labelStyle: TextStyle(fontSize: 14),
+                  labelText: 'Enter Amount',
+                  prefixIcon: Icon(Icons.phone),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Transfer')),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StackNATBottomSheetWidget extends StatefulWidget {
+  const _StackNATBottomSheetWidget({super.key});
+
+  @override
+  State<_StackNATBottomSheetWidget> createState() =>
+      _StackNATBottomSheetWidgetState();
+}
+
+class _StackNATBottomSheetWidgetState
+    extends State<_StackNATBottomSheetWidget> {
+  TextEditingController periodController = TextEditingController();
+  TextEditingController amount = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+                child:
+                    bodyLargeText('Select Stake Time', context, lineHeight: 1)),
+            Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingDefault / 2, vertical: 2),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.greenAccent.withOpacity(0.3)),
+                child: capText(
+                  '4.3468 NAT (43.468 \$)',
+                  context,
+                )),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Form(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: amount,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  labelStyle: TextStyle(fontSize: 14),
+                  labelText: 'Enter Amount',
+                  prefixIcon: Icon(Icons.money),
+                ),
+              ),
+              height10(),
+              PopupMenuButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                position: PopupMenuPosition.under,
+                offset: const Offset(0, 0),
+                itemBuilder: (BuildContext context) => [
+                  '3 months (5%)',
+                  '6 months (12%)',
+                  '12 months (30%)',
+                  '18 months (70%)',
+                  '24 months (150%)',
+                ]
+                    .map((e) => PopupMenuItem(
+                          value: e,
+                          child: capText(e, context),
+                        ))
+                    .toList(),
+                onSelected: (val) => setState(() {
+                  periodController.text = val ?? '';
+                }),
+                child: AbsorbPointer(
+                  child: TextFormField(
+                    controller: periodController,
+                    readOnly: true,
+                    enabled: true,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      labelStyle: TextStyle(fontSize: 14),
+                      labelText: 'Select Period',
+                      prefixIcon: Icon(Icons.access_time),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Stack NAT')),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _BuyNATBottomSheetWidget extends StatefulWidget {
+  const _BuyNATBottomSheetWidget({super.key});
+
+  @override
+  State<_BuyNATBottomSheetWidget> createState() =>
+      _BuyNATBottomSheetWidgetState();
+}
+
+class _BuyNATBottomSheetWidgetState extends State<_BuyNATBottomSheetWidget> {
+  TextEditingController amount = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            bodyLargeText('Buy NAT', context),
+            Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingDefault / 2, vertical: 2),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.greenAccent.withOpacity(0.3)),
+                child: capText(
+                  '4.3468 NAT (43.468 \$)',
+                  context,
+                )),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Form(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: amount,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  labelStyle: TextStyle(fontSize: 14),
+                  labelText: 'Enter Amount',
+                  prefixIcon: Icon(Icons.money),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        capText('You will get 50% bonus.', context),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Buy Nat')),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _NatHistoryWidget extends StatefulWidget {
+  const _NatHistoryWidget();
+
+  @override
+  State<_NatHistoryWidget> createState() => _NatHistoryWidgetState();
+}
+
+class _NatHistoryWidgetState extends State<_NatHistoryWidget> {
+  int totalCount = 7;
+  @override
+  Widget build(BuildContext context) {
+    var activities = generateRandomActivities(totalCount);
     return RefreshIndicator(
-      onRefresh: _refresh,
+      onRefresh: () => _refresh(),
       child: LoadMore(
-        isFinish: activityCount >= 60,
-        onLoadMore: _loadMore,
+        isFinish: totalCount >= 35,
+        onLoadMore: () => _loadMore(),
         whenEmptyLoad: true,
         delegate: const MyLoadMoreDelegate(),
         textBuilder: DefaultLoadMoreTextBuilder.english,
@@ -781,31 +1431,28 @@ class _CommissionHistoryListState extends State<_CommissionHistoryList> {
                               ),
                             ),
                             Builder(builder: (context) {
-                              bool credited = double.parse(
-                                      activities[index].credit ?? '0') >
-                                  double.parse(activities[index].debit ?? '0');
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   /*Container(
-                                    decoration: BoxDecoration(
-                                      color: credited
-                                          ? Colors.green[500]
-                                          : Colors.red[500]!,
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 3),
-                                    child: bodyMedText(
-                                      credited ? 'Credit' : 'Debit',
-                                      context,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
+                                        decoration: BoxDecoration(
+                                          color: credited
+                                              ? Colors.green[500]
+                                              : Colors.red[500]!,
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 3),
+                                        child: bodyMedText(
+                                          credited ? 'Credit' : 'Debit',
+                                          context,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  height10(),*/
+                                      height10(),*/
                                   capText(
                                       DateFormat().add_jm().format(
                                           DateTime.parse(
@@ -839,7 +1486,7 @@ class _CommissionHistoryListState extends State<_CommissionHistoryList> {
                       bool credited =
                           double.parse(activities[index].credit ?? '0') >
                               double.parse(activities[index].debit ?? '0');
-                      return  SolidLineConnector(
+                      return SolidLineConnector(
                         // color: Colors.white,
                         thickness: 1,
                         color: credited
@@ -858,7 +1505,754 @@ class _CommissionHistoryListState extends State<_CommissionHistoryList> {
   }
 
   Future<bool> _loadMore() async {
-    print("onLoadMore");
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 1000));
+    setState(() {
+      totalCount += 7;
+    });
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 2000));
+    totalCount = 7;
+  }
+}
+
+class _NatTotalWidget extends StatefulWidget {
+  const _NatTotalWidget();
+
+  @override
+  State<_NatTotalWidget> createState() => _NatTotalWidgetState();
+}
+
+class _NatTotalWidgetState extends State<_NatTotalWidget> {
+  int totalCount = 7;
+  @override
+  Widget build(BuildContext context) {
+    var activities = generateRandomActivities(totalCount);
+    return RefreshIndicator(
+      onRefresh: () => _refresh(),
+      child: LoadMore(
+        isFinish: totalCount >= 35,
+        onLoadMore: () => _loadMore(),
+        whenEmptyLoad: true,
+        delegate: const MyLoadMoreDelegate(),
+        textBuilder: DefaultLoadMoreTextBuilder.english,
+        child: ListView(
+          children: [
+            DefaultTextStyle(
+              style: const TextStyle(color: Color(0xff9b9b9b), fontSize: 12.5),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: FixedTimeline.tileBuilder(
+                  theme: TimelineThemeData(
+                    nodePosition: 0,
+                    color: const Color(0xff989898),
+                    indicatorTheme:
+                        const IndicatorThemeData(position: 0, size: 20.0),
+                    connectorTheme: const ConnectorThemeData(thickness: 2.5),
+                  ),
+                  builder: TimelineTileBuilder.connected(
+                    connectionDirection: ConnectionDirection.before,
+                    itemCount: activities.length,
+                    contentsBuilder: (_, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  bodyLargeText(
+                                      DateFormat('MMM dd yyyy').format(
+                                          DateTime.parse(
+                                              activities[index].createdAt ??
+                                                  '')),
+                                      context,
+                                      fontWeight: FontWeight.bold,
+                                      textAlign: TextAlign.center),
+                                  height5(),
+                                  capText(
+                                      parseHtmlString(
+                                          activities[index].note ?? ''),
+                                      context),
+                                  if (index < activities.length - 1) height50(),
+                                ],
+                              ),
+                            ),
+                            Builder(builder: (context) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  /*Container(
+                                        decoration: BoxDecoration(
+                                          color: credited
+                                              ? Colors.green[500]
+                                              : Colors.red[500]!,
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 3),
+                                        child: bodyMedText(
+                                          credited ? 'Credit' : 'Debit',
+                                          context,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                      height10(),*/
+                                  capText(
+                                      DateFormat().add_jm().format(
+                                          DateTime.parse(
+                                              activities[index].createdAt ??
+                                                  '')),
+                                      context,
+                                      fontSize: 10),
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
+                      );
+                    },
+                    indicatorBuilder: (_, index) {
+                      bool credited =
+                          double.parse(activities[index].credit ?? '0') >
+                              double.parse(activities[index].debit ?? '0');
+                      if (credited) {
+                        return const OutlinedDotIndicator(
+                          color: Color(0xff66c97f),
+                          // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                        );
+                      } else {
+                        return const OutlinedDotIndicator(color: Colors.red
+                            // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                            );
+                      }
+                    },
+                    connectorBuilder: (_, index, ___) {
+                      bool credited =
+                          double.parse(activities[index].credit ?? '0') >
+                              double.parse(activities[index].debit ?? '0');
+                      return SolidLineConnector(
+                        // color: Colors.white,
+                        thickness: 1,
+                        color: credited
+                            ? const Color(0xff66c97f)
+                            : const Color(0xff6676c9),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _loadMore() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 1000));
+    setState(() {
+      totalCount += 7;
+    });
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 2000));
+    totalCount = 7;
+  }
+}
+
+//_StackingWalletHistoryList
+class _StackingWalletList extends StatefulWidget {
+  const _StackingWalletList();
+
+  @override
+  State<_StackingWalletList> createState() => _StackingWalletListState();
+}
+
+class _StackingWalletListState extends State<_StackingWalletList>
+    with TickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2,
+      child: Stack(
+        children: [
+          const SizedBox(height: double.maxFinite, width: double.maxFinite),
+          TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
+              controller: _tabController,
+              children: [
+                buildStackTotal(context, type: 0),
+                buildStackHistory(context, type: 1),
+              ]),
+          buildTabBar(),
+        ],
+      ),
+    );
+  }
+
+  Positioned buildTabBar() {
+    return Positioned(
+        bottom: 30,
+        right: 0,
+        left: 0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              height: 40,
+              width: 200,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  color: getTheme.colorScheme.onSecondary),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: TabBar(
+                  splashBorderRadius: BorderRadius.circular(50),
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                      color: getTheme.colorScheme.primary,
+                      borderRadius: BorderRadius.circular(50)),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: getTheme.textTheme.bodySmall?.color,
+                  labelStyle: GoogleFonts.ubuntu(
+                      fontSize: 18, fontWeight: FontWeight.w500),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  /* onTap: (val) => setState(() {
+                        primaryFocus?.unfocus();
+                      }),*/
+                  tabs: const [
+                    Tab(text: 'Total'),
+                    Tab(text: 'History'),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget buildStackHistory(BuildContext context, {required int type}) {
+    return const _StackHistoryWidget();
+  }
+
+  Widget buildStackTotal(BuildContext context, {required int type}) {
+    return const _StackTotalWidget();
+  }
+}
+
+class _StackHistoryWidget extends StatefulWidget {
+  const _StackHistoryWidget();
+
+  @override
+  State<_StackHistoryWidget> createState() => _StackHistoryWidgetState();
+}
+
+class _StackHistoryWidgetState extends State<_StackHistoryWidget> {
+  int totalCount = 7;
+  @override
+  Widget build(BuildContext context) {
+    var activities = generateRandomActivities(totalCount);
+    return RefreshIndicator(
+      onRefresh: () => _refresh(),
+      child: LoadMore(
+        isFinish: totalCount >= 35,
+        onLoadMore: () => _loadMore(),
+        whenEmptyLoad: true,
+        delegate: const MyLoadMoreDelegate(),
+        textBuilder: DefaultLoadMoreTextBuilder.english,
+        child: ListView(
+          children: [
+            DefaultTextStyle(
+              style: const TextStyle(color: Color(0xff9b9b9b), fontSize: 12.5),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: FixedTimeline.tileBuilder(
+                  theme: TimelineThemeData(
+                    nodePosition: 0,
+                    color: const Color(0xff989898),
+                    indicatorTheme:
+                        const IndicatorThemeData(position: 0, size: 20.0),
+                    connectorTheme: const ConnectorThemeData(thickness: 2.5),
+                  ),
+                  builder: TimelineTileBuilder.connected(
+                    connectionDirection: ConnectionDirection.before,
+                    itemCount: activities.length,
+                    contentsBuilder: (_, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  bodyLargeText(
+                                      DateFormat('MMM dd yyyy').format(
+                                          DateTime.parse(
+                                              activities[index].createdAt ??
+                                                  '')),
+                                      context,
+                                      fontWeight: FontWeight.bold,
+                                      textAlign: TextAlign.center),
+                                  height5(),
+                                  capText(
+                                      parseHtmlString(
+                                          activities[index].note ?? ''),
+                                      context),
+                                  if (index < activities.length - 1) height50(),
+                                ],
+                              ),
+                            ),
+                            Builder(builder: (context) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  /*Container(
+                                        decoration: BoxDecoration(
+                                          color: credited
+                                              ? Colors.green[500]
+                                              : Colors.red[500]!,
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 3),
+                                        child: bodyMedText(
+                                          credited ? 'Credit' : 'Debit',
+                                          context,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                      height10(),*/
+                                  capText(
+                                      DateFormat().add_jm().format(
+                                          DateTime.parse(
+                                              activities[index].createdAt ??
+                                                  '')),
+                                      context,
+                                      fontSize: 10),
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
+                      );
+                    },
+                    indicatorBuilder: (_, index) {
+                      bool credited =
+                          double.parse(activities[index].credit ?? '0') >
+                              double.parse(activities[index].debit ?? '0');
+                      if (credited) {
+                        return const OutlinedDotIndicator(
+                          color: Color(0xff66c97f),
+                          // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                        );
+                      } else {
+                        return const OutlinedDotIndicator(color: Colors.red
+                            // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                            );
+                      }
+                    },
+                    connectorBuilder: (_, index, ___) {
+                      bool credited =
+                          double.parse(activities[index].credit ?? '0') >
+                              double.parse(activities[index].debit ?? '0');
+                      return SolidLineConnector(
+                        // color: Colors.white,
+                        thickness: 1,
+                        color: credited
+                            ? const Color(0xff66c97f)
+                            : const Color(0xff6676c9),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _loadMore() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 1000));
+    setState(() {
+      totalCount += 7;
+    });
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 2000));
+    totalCount = 7;
+  }
+}
+
+class _StackTotalWidget extends StatefulWidget {
+  const _StackTotalWidget();
+
+  @override
+  State<_StackTotalWidget> createState() => _StackTotalWidgetState();
+}
+
+class _StackTotalWidgetState extends State<_StackTotalWidget> {
+  int totalCount = 7;
+  @override
+  Widget build(BuildContext context) {
+    var activities = generateRandomActivities(totalCount);
+    return RefreshIndicator(
+      onRefresh: () => _refresh(),
+      child: LoadMore(
+        isFinish: totalCount >= 35,
+        onLoadMore: () => _loadMore(),
+        whenEmptyLoad: true,
+        delegate: const MyLoadMoreDelegate(),
+        textBuilder: DefaultLoadMoreTextBuilder.english,
+        child: ListView(
+          children: [
+            DefaultTextStyle(
+              style: const TextStyle(color: Color(0xff9b9b9b), fontSize: 12.5),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: FixedTimeline.tileBuilder(
+                  theme: TimelineThemeData(
+                    nodePosition: 0,
+                    color: const Color(0xff989898),
+                    indicatorTheme:
+                        const IndicatorThemeData(position: 0, size: 20.0),
+                    connectorTheme: const ConnectorThemeData(thickness: 2.5),
+                  ),
+                  builder: TimelineTileBuilder.connected(
+                    connectionDirection: ConnectionDirection.before,
+                    itemCount: activities.length,
+                    contentsBuilder: (_, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  bodyLargeText(
+                                      DateFormat('MMM dd yyyy').format(
+                                          DateTime.parse(
+                                              activities[index].createdAt ??
+                                                  '')),
+                                      context,
+                                      fontWeight: FontWeight.bold,
+                                      textAlign: TextAlign.center),
+                                  height5(),
+                                  capText(
+                                      parseHtmlString(
+                                          activities[index].note ?? ''),
+                                      context),
+                                  if (index < activities.length - 1) height50(),
+                                ],
+                              ),
+                            ),
+                            Builder(builder: (context) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  /*Container(
+                                        decoration: BoxDecoration(
+                                          color: credited
+                                              ? Colors.green[500]
+                                              : Colors.red[500]!,
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 3),
+                                        child: bodyMedText(
+                                          credited ? 'Credit' : 'Debit',
+                                          context,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                      height10(),*/
+                                  capText(
+                                      DateFormat().add_jm().format(
+                                          DateTime.parse(
+                                              activities[index].createdAt ??
+                                                  '')),
+                                      context,
+                                      fontSize: 10),
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
+                      );
+                    },
+                    indicatorBuilder: (_, index) {
+                      bool credited =
+                          double.parse(activities[index].credit ?? '0') >
+                              double.parse(activities[index].debit ?? '0');
+                      if (credited) {
+                        return const OutlinedDotIndicator(
+                          color: Color(0xff66c97f),
+                          // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                        );
+                      } else {
+                        return const OutlinedDotIndicator(color: Colors.red
+                            // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                            );
+                      }
+                    },
+                    connectorBuilder: (_, index, ___) {
+                      bool credited =
+                          double.parse(activities[index].credit ?? '0') >
+                              double.parse(activities[index].debit ?? '0');
+                      return SolidLineConnector(
+                        // color: Colors.white,
+                        thickness: 1,
+                        color: credited
+                            ? const Color(0xff66c97f)
+                            : const Color(0xff6676c9),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _loadMore() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 1000));
+    setState(() {
+      totalCount += 7;
+    });
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 2000));
+    totalCount = 7;
+  }
+}
+
+//_CommissionHistoryList
+class _CommissionHistoryList extends StatefulWidget {
+  const _CommissionHistoryList();
+
+  @override
+  State<_CommissionHistoryList> createState() => _CommissionHistoryListState();
+}
+
+class _CommissionHistoryListState extends State<_CommissionHistoryList> {
+  int activityCount = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    var activities = generateRandomActivities(activityCount);
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: _refresh,
+          child: LoadMore(
+            isFinish: activityCount >= 60,
+            onLoadMore: _loadMore,
+            whenEmptyLoad: true,
+            delegate: const MyLoadMoreDelegate(),
+            textBuilder: DefaultLoadMoreTextBuilder.english,
+            child: ListView(
+              children: [
+                DefaultTextStyle(
+                  style:
+                      const TextStyle(color: Color(0xff9b9b9b), fontSize: 12.5),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FixedTimeline.tileBuilder(
+                      theme: TimelineThemeData(
+                        nodePosition: 0,
+                        color: const Color(0xff989898),
+                        indicatorTheme:
+                            const IndicatorThemeData(position: 0, size: 20.0),
+                        connectorTheme:
+                            const ConnectorThemeData(thickness: 2.5),
+                      ),
+                      builder: TimelineTileBuilder.connected(
+                        connectionDirection: ConnectionDirection.before,
+                        itemCount: activities.length,
+                        contentsBuilder: (_, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      bodyLargeText(
+                                          DateFormat('MMM dd yyyy').format(
+                                              DateTime.parse(
+                                                  activities[index].createdAt ??
+                                                      '')),
+                                          context,
+                                          fontWeight: FontWeight.bold,
+                                          textAlign: TextAlign.center),
+                                      height5(),
+                                      capText(
+                                          parseHtmlString(
+                                              activities[index].note ?? ''),
+                                          context),
+                                      if (index < activities.length - 1)
+                                        height50(),
+                                    ],
+                                  ),
+                                ),
+                                Builder(builder: (context) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      /*Container(
+                                        decoration: BoxDecoration(
+                                          color: credited
+                                              ? Colors.green[500]
+                                              : Colors.red[500]!,
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 3),
+                                        child: bodyMedText(
+                                          credited ? 'Credit' : 'Debit',
+                                          context,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                      height10(),*/
+                                      capText(
+                                          DateFormat().add_jm().format(
+                                              DateTime.parse(
+                                                  activities[index].createdAt ??
+                                                      '')),
+                                          context,
+                                          fontSize: 10),
+                                    ],
+                                  );
+                                }),
+                              ],
+                            ),
+                          );
+                        },
+                        indicatorBuilder: (_, index) {
+                          bool credited =
+                              double.parse(activities[index].credit ?? '0') >
+                                  double.parse(activities[index].debit ?? '0');
+                          if (credited) {
+                            return const OutlinedDotIndicator(
+                              color: Color(0xff66c97f),
+                              // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                            );
+                          } else {
+                            return const OutlinedDotIndicator(color: Colors.red
+                                // child: Icon(Icons.check, color: Colors.white, size: 12.0),
+                                );
+                          }
+                        },
+                        connectorBuilder: (_, index, ___) {
+                          bool credited =
+                              double.parse(activities[index].credit ?? '0') >
+                                  double.parse(activities[index].debit ?? '0');
+                          return SolidLineConnector(
+                            // color: Colors.white,
+                            thickness: 1,
+                            color: credited
+                                ? const Color(0xff66c97f)
+                                : const Color(0xff6676c9),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(
+              height: 25,
+              child: FilledButton(
+                  style: FilledButton.styleFrom(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: paddingDefault)),
+                  onPressed: () => showWithDrawCommissionBottomSheet(context),
+                  child: capText('Withdraw', context, color: Colors.white)),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  void showWithDrawCommissionBottomSheet(BuildContext context) {
+    CustomBottomSheet.show(
+      context: context,
+      curve: Curves.bounceIn,
+      duration: 200,
+      dismissible: false,
+      enableDrag: false,
+      isScrollControlled: true,
+      mainAxisAlignment: MainAxisAlignment.center,
+      onDismiss: () async {
+        return true;
+      },
+      builder: (context) {
+        return const _WithDrawCommissionBottomSheetWidget();
+      },
+    );
+  }
+
+  Future<bool> _loadMore() async {
     await Future.delayed(const Duration(seconds: 0, milliseconds: 1000));
     setState(() {
       activityCount += 25;
@@ -874,8 +2268,78 @@ class _CommissionHistoryListState extends State<_CommissionHistoryList> {
   }
 }
 
+class _WithDrawCommissionBottomSheetWidget extends StatefulWidget {
+  const _WithDrawCommissionBottomSheetWidget({super.key});
+
+  @override
+  State<_WithDrawCommissionBottomSheetWidget> createState() =>
+      _WithDrawCommissionBottomSheetWidgetState();
+}
+
+class _WithDrawCommissionBottomSheetWidgetState
+    extends State<_WithDrawCommissionBottomSheetWidget> {
+  TextEditingController amount = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            bodyLargeText('Buy NAT', context),
+            Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingDefault / 2, vertical: 2),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: Colors.greenAccent.withOpacity(0.3)),
+                child: capText(
+                  '4.3468 NAT (43.468 \$)',
+                  context,
+                )),
+          ],
+        ),
+        const SizedBox(height: 20),
+        capText(
+            'Withdrawal amount will be credited to test...test This Address.',
+            context),
+        const SizedBox(height: 5),
+        Form(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: amount,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  labelStyle: TextStyle(fontSize: 14),
+                  labelText: 'Enter Amount',
+                  prefixIcon: Icon(Icons.money),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Buy Nat')),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+//_TBCWalletHistoryList
 class _TBCWalletHistoryList extends StatefulWidget {
-  _TBCWalletHistoryList({Key? key}) : super(key: key);
+  const _TBCWalletHistoryList({Key? key}) : super(key: key);
 
   @override
   State<_TBCWalletHistoryList> createState() => _TBCWalletHistoryListState();
@@ -940,9 +2404,6 @@ class _TBCWalletHistoryListState extends State<_TBCWalletHistoryList> {
                               ),
                             ),
                             Builder(builder: (context) {
-                              bool credited = double.parse(
-                                      activities[index].credit ?? '0') >
-                                  double.parse(activities[index].debit ?? '0');
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
@@ -996,9 +2457,6 @@ class _TBCWalletHistoryListState extends State<_TBCWalletHistoryList> {
                       }
                     },
                     connectorBuilder: (_, index, ___) {
-                      bool credited =
-                          double.parse(activities[index].credit ?? '0') >
-                              double.parse(activities[index].debit ?? '0');
                       return const SolidLineConnector(
                         color: Colors.white,
                         thickness: 1,
@@ -1018,7 +2476,6 @@ class _TBCWalletHistoryListState extends State<_TBCWalletHistoryList> {
   }
 
   Future<bool> _loadMore() async {
-    print("onLoadMore");
     await Future.delayed(const Duration(seconds: 0, milliseconds: 1000));
     setState(() {
       activityCount += 25;
@@ -1031,44 +2488,6 @@ class _TBCWalletHistoryListState extends State<_TBCWalletHistoryList> {
     setState(() {
       activityCount = 20;
     });
-  }
-}
-
-class MyLoadMoreDelegate extends LoadMoreDelegate {
-  const MyLoadMoreDelegate();
-
-  @override
-  Widget buildChild(LoadMoreStatus status,
-      {LoadMoreTextBuilder builder = DefaultLoadMoreTextBuilder.english}) {
-    String text = builder(status);
-    if (status == LoadMoreStatus.fail) {
-      return Text(text.capitalize!);
-    } else if (status == LoadMoreStatus.idle) {
-      return Text('');
-    } else if (status == LoadMoreStatus.loading) {
-      return Container(
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(
-              width: 25,
-              height: 25,
-              child: CircularProgressIndicator(
-                  backgroundColor: Colors.blue, strokeWidth: 1.5),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(text.capitalize!),
-            ),
-          ],
-        ),
-      );
-    } else if (status == LoadMoreStatus.nomore) {
-      return Text(text.capitalize!);
-    } else {
-      return Text(text.capitalize!);
-    }
   }
 }
 
@@ -1127,7 +2546,7 @@ class DashboardWalletActivity {
 
 //Subscription Content
 class _SubscriptionContent extends StatelessWidget {
-  const _SubscriptionContent({super.key});
+  const _SubscriptionContent();
 
   @override
   Widget build(BuildContext context) {
@@ -1199,7 +2618,7 @@ class ProfileEditPage extends StatefulWidget {
   const ProfileEditPage({super.key});
 
   @override
-  _ProfileEditPageState createState() => _ProfileEditPageState();
+  State<ProfileEditPage> createState() => _ProfileEditPageState();
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
@@ -1298,7 +2717,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     );
   }
 }
-
+/*
 //PlutoGridExamplePage
 class _PlutoGridExamplePage extends StatefulWidget {
   const _PlutoGridExamplePage({Key? key}) : super(key: key);
@@ -1307,46 +2726,103 @@ class _PlutoGridExamplePage extends StatefulWidget {
   State<_PlutoGridExamplePage> createState() => _PlutoGridExamplePageState();
 }
 
-PlutoRow createRow(String nft, String name, String staking_time, String price,
-        String hash_power, String status) =>
+PlutoRow createRow(String nft, String name, String stakingTime, String price,
+        String hashPower, String status) =>
     PlutoRow(
       cells: {
         'nft': PlutoCell(value: nft),
         'name': PlutoCell(value: name),
-        'staking_time': PlutoCell(value: staking_time),
+        'staking_time': PlutoCell(value: stakingTime),
         'price': PlutoCell(value: int.parse(price)),
-        'hash_power': PlutoCell(value: hash_power),
+        'hash_power': PlutoCell(value: hashPower),
         'status': PlutoCell(value: status),
       },
     );
 
 class _PlutoGridExamplePageState extends State<_PlutoGridExamplePage> {
-  final List<PlutoColumn> columns = <PlutoColumn>[
-    PlutoColumn(title: 'NFT', field: 'nft', type: PlutoColumnType.text()),
-    PlutoColumn(title: 'Name', field: 'name', type: PlutoColumnType.text()),
-    PlutoColumn(
-        title: 'Staking Time',
-        field: 'staking_time',
-        type: PlutoColumnType.date()),
-    PlutoColumn(title: 'Price', field: 'price', type: PlutoColumnType.number()),
-    PlutoColumn(
-        title: 'Hash Power', field: 'hash_power', type: PlutoColumnType.text()),
-    PlutoColumn(title: 'Status', field: 'status', type: PlutoColumnType.text()),
-  ];
+  List<PlutoColumn> generateColumns() => <PlutoColumn>[
+        PlutoColumn(
+          title: 'NFT',
+          field: 'nft',
+          type: PlutoColumnType.text(),
+          renderer: (rc) =>
+              Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        PlutoColumn(
+          title: 'Name',
+          field: 'name',
+          type: PlutoColumnType.text(),
+          renderer: (rc) =>
+              Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        PlutoColumn(
+          title: 'Staking Time',
+          field: 'staking_time',
+          type: PlutoColumnType.date(),
+          renderer: (rc) =>
+              Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        PlutoColumn(
+          title: 'Price',
+          field: 'price',
+          type: PlutoColumnType.number(),
+          renderer: (rc) => Text((rc.cell.value ?? '').toString(),
+              maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        PlutoColumn(
+          title: 'Hash Power',
+          field: 'hash_power',
+          type: PlutoColumnType.text(),
+          renderer: (rc) =>
+              Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ),
+        PlutoColumn(
+          title: 'Status',
+          field: 'status',
+          type: PlutoColumnType.text(),
+          // width: 200,
+          // minWidth: 175,
+          renderer: (rc) {
+            return SizedBox(
+              width: 275,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(rc.cell.value,
+                        maxLines: 1, overflow: TextOverflow.clip),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.rocket_launch_outlined, size: 10),
+                    onPressed: () {
+                      Get.context!.pushNamed(RouteName.nftDetails);
+                    },
+                    iconSize: 18,
+                    color: Colors.red,
+                    padding: const EdgeInsets.all(0),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ];
 
-  final List<PlutoRow> rows = [
-    createRow('user1', 'Mike', '2021-01-10', '200', '0.0005', 'Active'),
-    createRow('user2', 'Rohit', '2021-01-14', '2230', '0.00035', 'Suspended'),
-    createRow(
-      'user3',
-      'Abhishek',
-      '2021-01-12',
-      '2100',
-      '0.00205',
-      'De-active',
-    ),
-    createRow('user4', 'Sandeep', '2021-01-18', '2030', '0.00505', 'Active'),
-  ];
+  List<PlutoRow> generateRows() {
+    List<PlutoRow> rows = [];
+    for (int i = 1; i <= 100; i++) {
+      PlutoRow row = createRow(
+        'user$i',
+        'Name $i',
+        MyDateUtils.formatDateTime(DateTime.now().subtract(Duration(days: i))),
+        '${25 * i}',
+        '${0.0005 * i}',
+        i % 5 == 0 ? 'In-Active' : 'Active',
+      );
+      rows.add(row);
+    }
+
+    return rows;
+  }
 
   /// columnGroups that can group columns can be omitted.
   final List<PlutoColumnGroup> columnGroups = [
@@ -1362,31 +2838,371 @@ class _PlutoGridExamplePageState extends State<_PlutoGridExamplePage> {
   /// [PlutoGridStateManager] has many methods and properties to dynamically manipulate the grid.
   /// You can manipulate the grid dynamically at runtime by passing this through the [onLoaded] callback.
   late final PlutoGridStateManager stateManager;
+  final List<PlutoColumn> columns = [];
+
+  // Pass an empty row to the grid initially.
+  final List<PlutoRow> rows = [];
+
+  final List<PlutoRow> fakeFetchedRows = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // final dummyData = DummyData(10, 1000);
+
+    columns.addAll(<PlutoColumn>[
+      PlutoColumn(
+        suppressedAutoSize: true,
+        title: 'NFT',
+        field: 'nft',
+        type: PlutoColumnType.text(),
+        renderer: (rc) =>
+            Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      PlutoColumn(
+        suppressedAutoSize: true,
+        title: 'Name',
+        field: 'name',
+        type: PlutoColumnType.text(),
+        renderer: (rc) =>
+            Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      PlutoColumn(
+        suppressedAutoSize: true,
+        title: 'Staking Time',
+        field: 'staking_time',
+        type: PlutoColumnType.date(),
+        renderer: (rc) =>
+            Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      PlutoColumn(
+        suppressedAutoSize: true,
+        title: 'Price',
+        field: 'price',
+        type: PlutoColumnType.number(),
+        renderer: (rc) => Text((rc.cell.value ?? '').toString(),
+            maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      PlutoColumn(
+        suppressedAutoSize: true,
+        title: 'Hash Power',
+        field: 'hash_power',
+        type: PlutoColumnType.text(),
+        renderer: (rc) =>
+            Text(rc.cell.value, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+      PlutoColumn(
+        suppressedAutoSize: true,
+        title: 'Status',
+        field: 'status',
+        type: PlutoColumnType.text(),
+        // width: 200,
+        // minWidth: 175,
+        renderer: (rc) {
+          return SizedBox(
+            width: 275,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(rc.cell.value,
+                      maxLines: 1, overflow: TextOverflow.clip),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.rocket_launch_outlined, size: 10),
+                  onPressed: () {
+                    Get.context!.pushNamed(RouteName.nftDetails);
+                  },
+                  iconSize: 18,
+                  color: Colors.red,
+                  padding: const EdgeInsets.all(0),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    ]);
+
+    // Instead of fetching data from the server,
+    // Create a fake row in advance.
+    fakeFetchedRows.addAll(generateRows());
+  }
+
+  Future<PlutoLazyPaginationResponse> fetch(
+      PlutoLazyPaginationRequest request) async {
+    List<PlutoRow> tempList = fakeFetchedRows;
+*/
+/*
+    if (request.filterRows.isNotEmpty) {
+      final filter = FilterHelper.convertRowsToFilter(
+        request.filterRows,
+        stateManager.refColumns,
+      );
+
+      tempList = fakeFetchedRows.where(filter!).toList();
+    }
+    if (request.sortColumn != null && !request.sortColumn!.sort.isNone) {
+      tempList = [...tempList];
+
+      tempList.sort((a, b) {
+        final sortA = request.sortColumn!.sort.isAscending ? a : b;
+        final sortB = request.sortColumn!.sort.isAscending ? b : a;
+
+        return request.sortColumn!.type.compare(
+          sortA.cells[request.sortColumn!.field]!.valueForSorting,
+          sortB.cells[request.sortColumn!.field]!.valueForSorting,
+        );
+      });
+    }*/
+/*
+    final page = request.page;
+    const pageSize = 100;
+    final totalPage = (tempList.length / pageSize).ceil();
+    final start = (page - 1) * pageSize;
+    final end = start + pageSize;
+    Iterable<PlutoRow> fetchedRows =
+        tempList.getRange(max(0, start), min(tempList.length, end));
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    return Future.value(PlutoLazyPaginationResponse(
+        totalPage: totalPage, rows: fetchedRows.toList()));
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: PlutoGrid(
-        columns: columns,
-        rows: rows,
-        // columnGroups: columnGroups,
-        onLoaded: (PlutoGridOnLoadedEvent event) {
-          stateManager = event.stateManager;
+      body: Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: PlutoGrid(
+          columns: columns,
+          rows: rows,
+          // columnGroups: columnGroups,
+          onLoaded: (PlutoGridOnLoadedEvent event) {
+            stateManager = event.stateManager;
 
-          stateManager.setShowColumnFilter(false);
-          // print(stateManager.columns);
-          stateManager.columns.forEach((e) {
-            print(e.title);
-            stateManager.autoFitColumn(context, e);
-          });
-        },
-        onChanged: (PlutoGridOnChangedEvent event) {
-          print(event);
-        },
-        configuration: const PlutoGridConfiguration(),
-        mode: PlutoGridMode.select,
+            stateManager.setShowColumnFilter(false);
+            // print(stateManager.columns);
+            // for (var e in stateManager.columns) {
+            //   stateManager.autoFitColumn(context, e);
+            // }
+          },
+          onChanged: (PlutoGridOnChangedEvent event) {},
+          configuration: PlutoGridConfiguration(
+              style: PlutoGridStyleConfig(
+                  enableCellBorderHorizontal: false,
+                  enableCellBorderVertical: false,
+                  activatedColor: getTheme.colorScheme.primary.withOpacity(0.4),
+                  oddRowColor:
+                      (getTheme.textTheme.bodyMedium?.color ?? Colors.white)
+                          .withOpacity(0.2),
+                  evenRowColor: (redDark).withOpacity(0.2),
+                  gridBackgroundColor: getTheme.cardColor,
+                  gridBorderColor: Colors.transparent,
+                  borderColor: Colors.transparent,
+                  iconColor:
+                      getTheme.textTheme.titleLarge?.color ?? Colors.white,
+                  rowColor:
+                      (getTheme.textTheme.bodyMedium?.color ?? Colors.white)
+                          .withOpacity(0.2),
+                  columnTextStyle: const TextStyle(
+                      // color: Colors.black,
+                      decoration: TextDecoration.none,
+                      // fontSize: 14,
+                      fontWeight: FontWeight.bold))),
+          mode: PlutoGridMode.select,
+          createFooter: (stateManager) {
+            return PlutoLazyPagination(
+              // Determine the first page.
+              // Default is 1.
+              initialPage: 1,
+
+              // First call the fetch function to determine whether to load the page.
+              // Default is true.
+              initialFetch: true,
+
+              // Decide whether sorting will be handled by the server.
+              // If false, handle sorting on the client side.
+              // Default is true.
+              fetchWithSorting: true,
+
+              // Decide whether filtering is handled by the server.
+              // If false, handle filtering on the client side.
+              // Default is true.
+              fetchWithFiltering: true,
+
+              // Determines the page size to move to the previous and next page buttons.
+              // Default value is null. In this case,
+              // it moves as many as the number of page buttons visible on the screen.
+              pageSizeToMove: null,
+              fetch: fetch,
+              stateManager: stateManager,
+            );
+          },
+        ),
       ),
     );
   }
+}*/
+
+class _NFTListWidget extends StatefulWidget {
+  @override
+  State<_NFTListWidget> createState() => _NFTListWidgetState();
+}
+
+class _NFTListWidgetState extends State<_NFTListWidget> {
+  int nftCount = 10;
+
+  List<_NFTData> generateRandomUsers(int count) => List.generate(
+      count,
+      (index) => _NFTData(
+            srNo: index,
+            username: 'NFT53450251',
+            stackingTime: Random().nextInt(10).toString(),
+            activeDate: DateTime.now()
+                .subtract(Duration(days: index - 1))
+                .toIso8601String(),
+            status: index % 5 == 0 ? 'Inactive' : 'Active',
+            hasPower: 0.002 * index,
+            nft: 'https://www.nathorizon.com/public/images/userNft/8973.jpg',
+          ));
+  @override
+  Widget build(BuildContext context) {
+    List<_NFTData> nftList = generateRandomUsers(nftCount);
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: LoadMore(
+        isFinish: nftCount >= 35,
+        onLoadMore: _loadMore,
+        whenEmptyLoad: true,
+        delegate: const MyLoadMoreDelegate(),
+        textBuilder: DefaultLoadMoreTextBuilder.english,
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: paddingDefault),
+          itemCount: nftList.length,
+          itemBuilder: (context, index) {
+            return _NFTCard(nftData: nftList[index]);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _loadMore() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 10000));
+    if (mounted) {
+      setState(() {
+        nftCount += 5;
+      });
+    }
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    await Future.delayed(const Duration(seconds: 0, milliseconds: 2000));
+    setState(() {
+      nftCount = 10;
+    });
+  }
+}
+
+class _NFTCard extends StatelessWidget {
+  final _NFTData nftData;
+
+  const _NFTCard({required this.nftData});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(bottom: paddingDefault),
+      // elevation: 7,
+      // color: Colors.white,
+      // shadowColor: Colors.transparent,
+
+      decoration: BoxDecoration(
+          color: getTheme.colorScheme.secondary.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [BoxShadow(color: getTheme.colorScheme.background)]),
+      child: Padding(
+        padding: EdgeInsets.all(paddingDefault),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(backgroundImage: NetworkImage(nftData.nft)),
+                width5(),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    bodyLargeText(nftData.username, context),
+                    height5(),
+                    Row(
+                      children: [
+                        assetImages(PNGAssets.timeSpan, width: 15),
+                        width5(),
+                        capText('${nftData.stackingTime} Months', context),
+                        width5(),
+                        const Image(
+                            image: NetworkImage(
+                                'https://www.nathorizon.com/public/user/images/nft-stake.gif'),
+                            width: 15),
+                      ],
+                    ),
+                  ],
+                )),
+              ],
+            ),
+            height5(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.attach_money, size: 15),
+                    width5(),
+                    bodyMedText(nftData.hasPower.toStringAsFixed(6), context),
+                  ],
+                ),
+                width10(),
+                Row(
+                  children: [
+                    const Icon(Icons.diamond_outlined,
+                        color: Colors.blueAccent, size: 15),
+                    width5(),
+                    bodyMedText(nftData.hasPower.toStringAsFixed(6), context),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NFTData {
+  final int srNo;
+  final String username;
+  final String stackingTime;
+  final String activeDate;
+  final String status;
+  final double hasPower;
+  final String nft;
+
+  _NFTData({
+    required this.srNo,
+    required this.username,
+    required this.stackingTime,
+    required this.activeDate,
+    required this.status,
+    required this.hasPower,
+    required this.nft,
+  });
 }
