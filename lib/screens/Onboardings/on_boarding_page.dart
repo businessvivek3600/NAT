@@ -6,12 +6,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_global_tools/constants/asset_constants.dart';
-import 'package:my_global_tools/route_management/route_path.dart';
-import 'package:my_global_tools/screens/BottomNav/dash_setting_page.dart';
-import 'package:my_global_tools/utils/picture_utils.dart';
-import 'package:my_global_tools/utils/sized_utils.dart';
-import 'package:my_global_tools/utils/text.dart';
+import '/constants/asset_constants.dart';
+import '/route_management/route_path.dart';
+import '/screens/BottomNav/dash_setting_page.dart';
+import '/utils/picture_utils.dart';
+import '/utils/sized_utils.dart';
+import '/utils/text.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 bool showOnBoarding = false;
@@ -59,32 +59,32 @@ class _OnBoardingPageState extends State<OnBoardingPage>
   }
 
   List<String> images = [
-    /*"https://images.pexels.com/photos/1191403/pexels-photo-1191403.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/9020063/pexels-photo-9020063.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/12437389/pexels-photo-12437389.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/58997/pexels-photo-58997.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"*/
-    "onBoardingSaloon.png",
-    "onBoarding2.png",
-    "onBoarding3.png",
-    "verifyOTP.jpeg",
+    "https://static.vecteezy.com/system/resources/previews/010/841/855/original/3d-illustration-nft-and-ethereum-wallet-png.png",
+    "https://www.nathorizon.com/public/user/images/slider-5.png",
+    "https://www.nathorizon.com/public/images/userNft/gemichan_logo_4x.jpg",
+    "https://www.nathorizon.com/public/user/images/thumb-banner.png"
+
+    // "onBoardingSaloon.png",
+    //   "onBoarding2.png",
+    //   "onBoarding3.png",
+    //   "verifyOTP.jpeg",
   ];
-  final List<_OnboardingData> onBoardingData = [
-    _OnboardingData(
+  final List<_OnBoardingData> onBoardingData = [
+    _OnBoardingData(
       title: "Welcome to Our App",
       subtitle:
           "Discover new features, exciting content, and much more with our app. Get ready for an amazing experience.",
     ),
-    _OnboardingData(
+    _OnBoardingData(
       title: "Easy Navigation",
-      subtitle:
-          "Our app provides a user-friendly and intuitive navigation system that helps you find what you need quickly and easily.",
+      subtitle: "Hey, There is a market place that help you to grow more.",
     ),
-    _OnboardingData(
+    _OnBoardingData(
       title: "Stay Informed",
       subtitle:
           "Receive real-time notifications about updates, news, and events so you never miss out on important information.",
     ),
-    _OnboardingData(
+    _OnBoardingData(
       title: "Start Exploring",
       subtitle:
           "It's time to dive into the world of our app. Start exploring and enjoy the endless possibilities!",
@@ -206,20 +206,12 @@ class _OnBoardingPageState extends State<OnBoardingPage>
       builder: (context, child) {
         return Opacity(opacity: _fadeAnimation.value, child: child);
       },
-      child: Container(
-        // duration: const Duration(milliseconds: 500),
-        // curve: Curves.easeInOutCubic,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-              image: assetImageProvider(images[pagePosition]),
-              fit: BoxFit.contain),
-        ),
-      ),
+      child: buildCachedNetworkImage(images[pagePosition], fit: BoxFit.contain),
     );
   }
 
 // Animated contentSlider widget
-  Widget contentSlider(List<_OnboardingData> onBoardingData, pagePosition) {
+  Widget contentSlider(List<_OnBoardingData> onBoardingData, pagePosition) {
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
@@ -254,11 +246,11 @@ class _OnBoardingPageState extends State<OnBoardingPage>
   }
 }
 
-class _OnboardingData {
+class _OnBoardingData {
   final String title;
   final String subtitle;
 
-  _OnboardingData({
+  _OnBoardingData({
     required this.title,
     required this.subtitle,
   });
